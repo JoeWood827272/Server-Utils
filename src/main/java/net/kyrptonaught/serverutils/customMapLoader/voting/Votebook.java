@@ -19,8 +19,8 @@ import java.util.function.BiConsumer;
 
 public class Votebook {
 
-    public static HashMap<String, BookPage> bookLibrary = new HashMap<>();
-    public static HashMap<String, BiConsumer<DynamicData,BookPage>> dynamicLibrary = new HashMap<>();
+    private static final HashMap<String, BookPage> bookLibrary = new HashMap<>();
+    private static final HashMap<String, BiConsumer<DynamicData, BookPage>> dynamicLibrary = new HashMap<>();
 
     public static void generateBookLibrary(List<BattleMapAddon> addons) {
         bookLibrary.clear();
@@ -98,7 +98,7 @@ public class Votebook {
         return book.build(player);
     }
 
-    public static void generateMapPacks(boolean isBase, List<BattleMapAddon> addons) {
+    private static void generateMapPacks(boolean isBase, List<BattleMapAddon> addons) {
         HashMap<String, List<BattleMapAddon>> packs = new HashMap<>();
 
         for (BattleMapAddon config : addons) {
@@ -165,7 +165,7 @@ public class Votebook {
         bookLibrary.put(isBase ? "baseMaps" : "customMaps", createBasicPage().addPage(packsText.toArray(Text[]::new)));
     }
 
-    public static List<List<Text>> generateMapPackPages(List<BattleMapAddon> packMods, boolean includeHeader) {
+    private static List<List<Text>> generateMapPackPages(List<BattleMapAddon> packMods, boolean includeHeader) {
         int maxPerPage = 10;
         int lastUsed = 0;
 
@@ -189,7 +189,7 @@ public class Votebook {
         return pages;
     }
 
-    public static void generateMapPages(List<BattleMapAddon> lemmods) {
+    private static void generateMapPages(List<BattleMapAddon> lemmods) {
         for (BattleMapAddon config : lemmods) {
             List<Text> mapText = new ArrayList<>();
 
@@ -203,7 +203,7 @@ public class Votebook {
         }
     }
 
-    public static Text generateMapTooltip(BattleMapAddon config) {
+    private static Text generateMapTooltip(BattleMapAddon config) {
         MutableText availableTypes = Text.empty();
         if (config.hasSize(MapSize.SMALL))
             availableTypes.append(Text.translatable("lem.battle.menu.host.config.maps.option.small")).append(", ");
@@ -222,7 +222,7 @@ public class Votebook {
                 .append(Text.translatable("lem.mapdecider.menu.voting.typelist", availableTypes));
     }
 
-    public static void generateHostSettings(DynamicData data, BookPage bookPage) {
+    private static void generateHostSettings(DynamicData data, BookPage bookPage) {
         MapSize selected = HostOptions.selectedMapSize;
 
         bookPage.addPage(
@@ -240,7 +240,7 @@ public class Votebook {
                 backButton("hostConfig"));
     }
 
-    public static void generateMapEnableDisable(DynamicData data, BookPage bookPage) {
+    private static void generateMapEnableDisable(DynamicData data, BookPage bookPage) {
         List<BattleMapAddon> packMods = data.addons();
         int maxPerPage = 10;
         int lastUsed = 0;
@@ -273,7 +273,7 @@ public class Votebook {
         }
     }
 
-    public static void generateMapOptionalPacks(DynamicData data, BookPage bookPage) {
+    private static void generateMapOptionalPacks(DynamicData data, BookPage bookPage) {
         BattleMapAddon addon = CustomMapLoaderMod.BATTLE_MAPS.get(new Identifier(data.arg()));
 
         int maxPerPage = 8;
@@ -321,7 +321,7 @@ public class Votebook {
         }
     }
 
-    public static void generatePlayerPackPolicy(DynamicData data, BookPage bookPage) {
+    private static void generatePlayerPackPolicy(DynamicData data, BookPage bookPage) {
         boolean policy = HostOptions.getGlobalAcceptValue(data.player());
 
         String cmd = "custommaploader playerOptions optionalPacks globalAccept";
@@ -330,22 +330,22 @@ public class Votebook {
                 dashLit("Global Pack Policy"),
                 Text.empty(),
                 colored("Prompt Policy", Formatting.GOLD),
-                colored("Use Optional Packs: ", Formatting.DARK_GRAY).append(enabled),
+                colored("Optional Packs: ", Formatting.DARK_GRAY).append(enabled),
                 Text.empty(),
                 withOpenAfterCmd(colored(bracketLit("Reset All Packs"), Formatting.DARK_RED), "player_rp_settings", "custommaploader playerOptions optionalPacks reset"),
                 Text.empty(),
                 backButton("options"));
     }
 
-    public static MutableText toggleCheckBox(boolean value, String page, String arg, String cmd) {
+    private static MutableText toggleCheckBox(boolean value, String page, String arg, String cmd) {
         return colored(withOpenAfterCmd(toggleCheckBox(value), page, arg, cmd + (value ? " false" : " true")), value ? Formatting.GREEN : Formatting.RED);
     }
 
-    public static MutableText toggleCheckBox(boolean value) {
+    private static MutableText toggleCheckBox(boolean value) {
         return withHover(Text.literal(value ? "[✔]" : "[❌]"), Text.literal("Click to toggle"));
     }
 
-    public static MutableText trimName(MutableText text, int maxLength) {
+    private static MutableText trimName(MutableText text, int maxLength) {
         if (text.getContent() instanceof PlainTextContent content) {
             String value = content.string();
 
@@ -359,87 +359,87 @@ public class Votebook {
         return text;
     }
 
-    public static MutableText colored(MutableText text, Formatting... formatting) {
+    private static MutableText colored(MutableText text, Formatting... formatting) {
         return text.formatted(formatting);
     }
 
-    public static MutableText colored(String text, Formatting... formatting) {
+    private static MutableText colored(String text, Formatting... formatting) {
         return colored(Text.literal(text), formatting);
     }
 
-    public static MutableText coloredTrans(String transKey, Formatting... formatting) {
+    private static MutableText coloredTrans(String transKey, Formatting... formatting) {
         return colored(Text.translatable(transKey), formatting);
     }
 
-    public static MutableText bracketTrans(String transKey) {
+    private static MutableText bracketTrans(String transKey) {
         return bracket(Text.translatable(transKey));
     }
 
-    public static MutableText bracketLit(String text) {
+    private static MutableText bracketLit(String text) {
         return bracket(Text.literal(text));
     }
 
-    public static MutableText bracket(MutableText text) {
+    private static MutableText bracket(MutableText text) {
         return colored(Text.literal("[").append(text).append("]"), Formatting.GOLD);
     }
 
-    public static MutableText dashTrans(String transKey) {
+    private static MutableText dashTrans(String transKey) {
         return dash(Text.translatable(transKey));
     }
 
-    public static MutableText dashLit(String text) {
+    private static MutableText dashLit(String text) {
         return dash(Text.literal(text));
     }
 
-    public static MutableText dash(MutableText text) {
+    private static MutableText dash(MutableText text) {
         return colored(Text.literal("- ").append(text).append(" -"), Formatting.BLUE);
     }
 
-    public static MutableText voteButton(Identifier map) {
+    private static MutableText voteButton(Identifier map) {
         return bracketTrans("lem.mapdecider.menu.vote").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/custommaploader voting vote " + map)));
     }
 
-    public static MutableText backButton(String page) {
+    private static MutableText backButton(String page) {
         return colored(withOpenCmd(bracketTrans("gui.back"), page), Formatting.GRAY);
     }
 
-    public static MutableText nextButton(String transKey, int page) {
+    private static MutableText nextButton(String transKey, int page) {
         return colored(withClickEvent(bracketTrans(transKey), ClickEvent.Action.CHANGE_PAGE, "" + page), Formatting.GRAY);
     }
 
-    public static MutableText withHover(MutableText text, Text hover) {
+    private static MutableText withHover(MutableText text, Text hover) {
         return text.styled(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover)));
     }
 
-    public static MutableText withOpenCmd(MutableText text, String page) {
+    private static MutableText withOpenCmd(MutableText text, String page) {
         return withCmd(text, "/custommaploader voting showBookPage \"" + page + "\"");
     }
 
-    public static MutableText withOpenCmd(MutableText text, String page, String arg) {
+    private static MutableText withOpenCmd(MutableText text, String page, String arg) {
         return withCmd(text, "/custommaploader voting showBookPage \"" + page + "\" arg \"" + arg + "\"");
     }
 
-    public static MutableText withOpenCmd(MutableText text, String page, Text hover) {
+    private static MutableText withOpenCmd(MutableText text, String page, Text hover) {
         return withHover(withOpenCmd(text, page), hover);
     }
 
-    public static MutableText withOpenAfterCmd(MutableText text, String page, String afterCmd) {
+    private static MutableText withOpenAfterCmd(MutableText text, String page, String afterCmd) {
         return withCmd(text, "/custommaploader voting showBookPage \"" + page + "\" after " + afterCmd);
     }
 
-    public static MutableText withOpenAfterCmd(MutableText text, String page, String arg, String afterCmd) {
+    private static MutableText withOpenAfterCmd(MutableText text, String page, String arg, String afterCmd) {
         return withCmd(text, "/custommaploader voting showBookPage \"" + page + "\" arg \"" + arg + "\" after " + afterCmd);
     }
 
-    public static MutableText withCmd(MutableText text, String cmd) {
+    private static MutableText withCmd(MutableText text, String cmd) {
         return withClickEvent(text, ClickEvent.Action.RUN_COMMAND, cmd);
     }
 
-    public static MutableText withClickEvent(MutableText text, ClickEvent.Action action, String option) {
+    private static MutableText withClickEvent(MutableText text, ClickEvent.Action action, String option) {
         return text.styled(style -> style.withClickEvent(new ClickEvent(action, option)));
     }
 
-    public static MutableText withLink(MutableText text, String url) {
+    private static MutableText withLink(MutableText text, String url) {
         return text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(url))));
     }
 }

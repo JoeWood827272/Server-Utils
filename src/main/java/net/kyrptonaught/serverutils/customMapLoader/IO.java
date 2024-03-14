@@ -100,7 +100,7 @@ public class IO {
                             Files.copy(zip.getInputStream(entry), newOut);
                         }
                     }
-                }catch (FileAlreadyExistsException ignored){
+                } catch (FileAlreadyExistsException ignored) {
 
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -27,8 +27,8 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
     private static final HashMap<UUID, PackStatus> playerLoaded = new HashMap<>();
 
     private static Collection<CommandFunction<ServerCommandSource>> RP_FAILED_FUNCTIONS, RP_LOADED_FUNCTIONS, RP_STARTED_FUNCTIONS;
-    private static Identifier CUSTOMPACKID = new Identifier("custompack", "enabled");
-    private static UUID CUSTOMPACKUUID = UUID.nameUUIDFromBytes(CUSTOMPACKID.toString().getBytes(StandardCharsets.UTF_8));
+    private static final Identifier CUSTOMPACKID = new Identifier("custompack", "enabled");
+    private static final UUID CUSTOMPACKUUID = UUID.nameUUIDFromBytes(CUSTOMPACKID.toString().getBytes(StandardCharsets.UTF_8));
 
     public void onConfigLoad(ResourcePackConfig config) {
         RP_FAILED_FUNCTIONS = null;
@@ -82,8 +82,6 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
                 RP_LOADED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerCompleteFunction);
             if (RP_FAILED_FUNCTIONS == null)
                 RP_FAILED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerFailedFunction);
-            if (RP_STARTED_FUNCTIONS == null)
-                RP_STARTED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerStartFunction);
 
             if (didPackFail(player))
                 CMDHelper.executeAs(player, RP_FAILED_FUNCTIONS);
@@ -204,7 +202,7 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
 
         List<UUID> c = new ArrayList<>();
         playerLoaded.get(player.getUuid()).getPacks().forEach((uuid, status) -> {
-            if(status.isTempPack())
+            if (status.isTempPack())
                 c.add(uuid);
         });
 

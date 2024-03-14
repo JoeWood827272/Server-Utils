@@ -28,7 +28,7 @@ public class PackStatus {
     }
 
     public static class Status {
-        private boolean tempPack;
+        private final boolean tempPack;
         private LoadingStatus loadingStatus;
 
         public Status(boolean tempPack, LoadingStatus loadingStatus) {
