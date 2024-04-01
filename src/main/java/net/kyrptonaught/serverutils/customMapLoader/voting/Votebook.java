@@ -43,7 +43,7 @@ public class Votebook {
                 withOpenCmd(bracketTrans("lem.mapdecider.menu.basegame"), "baseMaps"),
                 withOpenCmd(bracketTrans("lem.mapdecider.menu.mods"), "customMaps"),
                 Text.empty(),
-                withCmd(bracketTrans("lem.mapdecider.menu.removevote").formatted(Formatting.RED), "/custommaploader vote removeVote"),
+                withCmd(bracketTrans("lem.mapdecider.menu.removevote").formatted(Formatting.RED), "/custommaploader voting removeVote"),
                 Text.empty(),
                 backButton("title")
         ));
@@ -51,7 +51,7 @@ public class Votebook {
         bookLibrary.put("options", createBasicPage().addPage(
                 dashTrans("lem.generic.options"),
                 Text.empty(),
-                withOpenCmd(bracketLit("Global Pack Policy"), "player_rp_settings"),
+                withOpenCmd(bracketTrans("lem.mapdecider.menu.packpolicy.global"), "player_rp_settings"),
                 withOpenCmd(bracketTrans("lem.mapdecider.menu.hosts"), "hostConfig"),
                 Text.empty(),
                 backButton("title")
@@ -70,7 +70,7 @@ public class Votebook {
         dynamicLibrary.put("host_map_settings", Votebook::generateHostSettings);
         dynamicLibrary.put("host_map_enable_disable", Votebook::generateMapEnableDisable);
         dynamicLibrary.put("player_rp_settings", Votebook::generatePlayerPackPolicy);
-        dynamicLibrary.put("map_player_rp_settings", Votebook::generateMapOptionalPacks);
+        dynamicLibrary.put("map_player_rp_settings", Votebook::generateMapExtras);
 
         generateMapPacks(false, addons.stream().filter(config -> !config.isBaseAddon).toList());
         generateMapPacks(true, addons.stream().filter(config -> config.isBaseAddon).toList());
@@ -81,10 +81,10 @@ public class Votebook {
         return new BookPage("Voting Book", "LEM");
     }
 
-    public static BookGui getPage(ServerPlayerEntity player, String page, String arg) {
+    public static BookGui getPage(ServerPlayerEntity player, String page, String[] args) {
         if (dynamicLibrary.containsKey(page)) {
             BookPage book = createBasicPage();
-            dynamicLibrary.get(page).accept(new DynamicData(player, CustomMapLoaderMod.BATTLE_MAPS.values().stream().toList(), arg), book);
+            dynamicLibrary.get(page).accept(new DynamicData(player, CustomMapLoaderMod.BATTLE_MAPS.values().stream().toList(), args), book);
             return book.build(player);
         }
 
@@ -197,7 +197,7 @@ public class Votebook {
             mapText.add(config.getDescriptionText().formatted(Formatting.DARK_AQUA));
             mapText.add(Text.empty());
 
-            mapText.add(voteButton(config.addon_id).append(" ").append(backButton("mapPack_" + config.addon_pack).append(" ").append(withOpenCmd(bracketLit("More"), "map_player_rp_settings", config.addon_id.toString()))));
+            mapText.add(voteButton(config.addon_id).append(" ").append(backButton("mapPack_" + config.addon_pack).append(" ").append(withOpenCmd(bracketTrans("lem.generic.more"), "map_player_rp_settings", "index,0,"+ config.addon_id.toString()))));
 
             bookLibrary.put("map_" + config.addon_id, createBasicPage().addPage(mapText.toArray(Text[]::new)));
         }
@@ -242,83 +242,46 @@ public class Votebook {
 
     private static void generateMapEnableDisable(DynamicData data, BookPage bookPage) {
         List<BattleMapAddon> packMods = data.addons();
-        int maxPerPage = 10;
-        int lastUsed = 0;
-        int pages = 0;
 
-        while (lastUsed < packMods.size()) {
-            List<Text> pageText = new ArrayList<>();
-
-            pageText.add(dashTrans("lem.menu.host.config.maps.enabled.header"));
-            pageText.add(Text.empty());
-
-            for (; lastUsed < packMods.size() && lastUsed - (pages * maxPerPage) < maxPerPage; lastUsed++) {
-
-                BattleMapAddon config = packMods.get(lastUsed);
-                boolean enabled = config.isAddonEnabled;
-
-                String cmd = "custommaploader hostOptions enableMap " + config.addon_id + " " + (!enabled);
-                pageText.add(withHover(withOpenAfterCmd(colored(bracket(trimName(config.getNameText(), 20)), enabled ? Formatting.GREEN : Formatting.RED), "host_map_enable_disable", cmd), Text.translatable("lem.menu.host.config.maps.enabled.toggle")));
-            }
-
-            pageText.add(Text.empty());
-            if (pages == 0) pageText.add(backButton("host_map_settings"));
-            else pageText.add(nextButton("gui.back", pages));
-
-            if (lastUsed < packMods.size())
-                ((MutableText) pageText.get(pageText.size() - 1)).append(" ").append(nextButton("createWorld.customize.custom.next", pages + 2));
-
-            bookPage.addPage(pageText.toArray(Text[]::new));
-            pages++;
-        }
+        Text header = dashTrans("lem.menu.host.config.maps.enabled.header");
+        splitAcrossPages(bookPage, 10, packMods, header, "host_map_settings", false, (config, index, pageText) -> {
+            boolean enabled = config.isAddonEnabled;
+            String cmd = "custommaploader hostOptions enableMap " + config.addon_id + " " + (!enabled);
+            pageText.add(withHover(withOpenAfterCmd(colored(bracket(trimName(config.getNameText(), 20)), enabled ? Formatting.GREEN : Formatting.RED), "host_map_enable_disable", cmd), Text.translatable("lem.menu.host.config.maps.enabled.toggle")));
+        });
     }
 
-    private static void generateMapOptionalPacks(DynamicData data, BookPage bookPage) {
-        BattleMapAddon addon = CustomMapLoaderMod.BATTLE_MAPS.get(new Identifier(data.arg()));
+    private static void generateMapExtras(DynamicData data, BookPage bookPage) {
+        BattleMapAddon addon = CustomMapLoaderMod.BATTLE_MAPS.get(new Identifier(data.arg(2)));
 
-        int maxPerPage = 8;
-        int lastUsed = 0;
-        int pages = 0;
+        Text requiredHeader = withHover(dashTrans("lem.mapdecider.menu.requiredpacks"), trimName(addon.getNameText(), 20));
+        splitAcrossPages(bookPage, 10, addon.required_packs.packs, requiredHeader, "map_" + addon.addon_id, true, (rpOption, index, pageText) -> {
+            MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
+            pageText.add(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY));
+        });
 
-        while (lastUsed < addon.optional_packs.packs.size()) {
-            List<Text> pageText = new ArrayList<>();
+        Text optionalHeader = withHover(dashTrans("lem.mapdecider.menu.optionalpacks"), trimName(addon.getNameText(), 20));
+        splitAcrossPages(bookPage, 8, addon.optional_packs.packs, optionalHeader, "map_" + addon.addon_id, false, (rpOption, index, pageText) -> {
+            boolean overwrite = HostOptions.getOverwriteValue(data.player(), addon.addon_id);
+            String args = "index," + bookPage.size() + "," + addon.addon_id.toString();
 
-            pageText.add(withHover(dashLit("Optional Packs"), trimName(addon.getNameText(), 20)));
-            pageText.add(Text.empty());
-
-            for (; lastUsed < addon.optional_packs.packs.size() && lastUsed - (pages * maxPerPage) < maxPerPage; lastUsed++) {
-                ResourcePackConfig.RPOption rpOption = addon.optional_packs.packs.get(lastUsed);
-
-                boolean overwrite = HostOptions.getOverwriteValue(data.player(), addon.addon_id);
-
-                if (lastUsed == 0) {
-                    String cmd = "custommaploader playerOptions optionalPacks globalAccept overwrite " + addon.addon_id;
-                    MutableText enabled = toggleCheckBox(overwrite, "map_player_rp_settings", addon.addon_id.toString(), cmd);
-                    pageText.add(colored("Overwrite Global: ", Formatting.DARK_GRAY).append(enabled));
-                    pageText.add(Text.empty());
-                }
-
-                if (overwrite) {
-                    MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
-                    String cmd = "custommaploader playerOptions optionalPacks " + addon.addon_id + " accept " + rpOption.packID;
-                    MutableText enabled = toggleCheckBox(HostOptions.getMapResourcePackValue(data.player(), addon.addon_id, rpOption.packID), "map_player_rp_settings", addon.addon_id.toString(), cmd).append(" ");
-                    pageText.add(enabled.append(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY)));
-                } else {
-                    MutableText hover = Text.literal("Enable overwrite to modify");
-                    pageText.add(colored(withHover(toggleCheckBox(false).append(" ").append(trimName(rpOption.getNameText(), 20)), hover), Formatting.GRAY));
-                }
+            if (index == 0) {
+                String cmd = "custommaploader playerOptions optionalPacks globalAccept overwrite " + addon.addon_id;
+                MutableText enabled = toggleCheckBox(overwrite, "map_player_rp_settings", args, cmd);
+                pageText.add(colored(Text.translatable("lem.mapdecider.menu.optionalpacks.overwriteglobal", enabled), Formatting.DARK_GRAY));
+                pageText.add(Text.empty());
             }
 
-            pageText.add(Text.empty());
-            if (pages == 0) pageText.add(backButton("map_" + addon.addon_id));
-            else pageText.add(nextButton("gui.back", pages));
-
-            if (lastUsed < addon.optional_packs.packs.size())
-                ((MutableText) pageText.get(pageText.size() - 1)).append(" ").append(nextButton("createWorld.customize.custom.next", pages + 2));
-
-            bookPage.addPage(pageText.toArray(Text[]::new));
-            pages++;
-        }
+            if (overwrite) {
+                MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
+                String cmd = "custommaploader playerOptions optionalPacks " + addon.addon_id + " accept " + rpOption.packID;
+                MutableText enabled = toggleCheckBox(HostOptions.getMapResourcePackValue(data.player(), addon.addon_id, rpOption.packID), "map_player_rp_settings", args, cmd).append(" ");
+                pageText.add(enabled.append(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY)));
+            } else {
+                MutableText hover = Text.translatable("lem.mapdecider.menu.optionalpacks.enableoverwrite");
+                pageText.add(colored(withHover(toggleCheckBox(false).append(" ").append(trimName(rpOption.getNameText(), 20)), hover), Formatting.GRAY));
+            }
+        });
     }
 
     private static void generatePlayerPackPolicy(DynamicData data, BookPage bookPage) {
@@ -327,14 +290,45 @@ public class Votebook {
         String cmd = "custommaploader playerOptions optionalPacks globalAccept";
         MutableText enabled = toggleCheckBox(policy, "player_rp_settings", "player_rp_settings", cmd);
         bookPage.addPage(
-                dashLit("Global Pack Policy"),
+                dashTrans("lem.mapdecider.menu.packpolicy.global"),
                 Text.empty(),
-                colored("Prompt Policy", Formatting.GOLD),
-                colored("Optional Packs: ", Formatting.DARK_GRAY).append(enabled),
+                coloredTrans("lem.mapdecider.menu.packpolicy.promptpolicy", Formatting.GOLD),
+                colored(Text.translatable("lem.mapdecider.menu.packpolicy.optionalpacks", enabled), Formatting.DARK_GRAY),
                 Text.empty(),
-                withOpenAfterCmd(colored(bracketLit("Reset All Packs"), Formatting.DARK_RED), "player_rp_settings", "custommaploader playerOptions optionalPacks reset"),
+                withOpenAfterCmd(colored(bracketTrans("lem.mapdecider.menu.packpolicy.reset"), Formatting.DARK_RED), "player_rp_settings", "custommaploader playerOptions optionalPacks reset"),
                 Text.empty(),
                 backButton("options"));
+    }
+
+    private static <T> void splitAcrossPages(BookPage bookPage, int maxPerPage, List<T> items, Text header, String previousPage, boolean alwaysShowNext, SplitData<T, Integer, List<Text>> forEachItem) {
+        int startingPageIndex = bookPage.size();
+        int lastUsed = 0;
+        int pages = 0;
+
+        while (lastUsed < items.size()) {
+            List<Text> pageText = new ArrayList<>();
+
+            if (header != null) {
+                pageText.add(header);
+                pageText.add(Text.empty());
+            }
+
+            for (; lastUsed < items.size() && lastUsed - (pages * maxPerPage) < maxPerPage; lastUsed++) {
+                forEachItem.accept(items.get(lastUsed), lastUsed, pageText);
+            }
+
+            pageText.add(Text.empty());
+            if (pages == 0) {
+                if (startingPageIndex > 0) pageText.add(nextButton("gui.back", startingPageIndex));
+                else pageText.add(backButton(previousPage));
+            } else pageText.add(nextButton("gui.back", startingPageIndex + pages));
+
+            if (lastUsed < items.size() || alwaysShowNext)
+                ((MutableText) pageText.get(pageText.size() - 1)).append(" ").append(nextButton("createWorld.customize.custom.next", startingPageIndex + pages + 2));
+
+            bookPage.addPage(pageText.toArray(Text[]::new));
+            pages++;
+        }
     }
 
     private static MutableText toggleCheckBox(boolean value, String page, String arg, String cmd) {
@@ -342,7 +336,7 @@ public class Votebook {
     }
 
     private static MutableText toggleCheckBox(boolean value) {
-        return withHover(Text.literal(value ? "[✔]" : "[❌]"), Text.literal("Click to toggle"));
+        return withHover(Text.literal(value ? "[✔]" : "[❌]"), Text.translatable("lem.mapdecider.menu.clicktoggle"));
     }
 
     private static MutableText trimName(MutableText text, int maxLength) {
@@ -441,5 +435,10 @@ public class Votebook {
 
     private static MutableText withLink(MutableText text, String url) {
         return text.styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(url))));
+    }
+
+    @FunctionalInterface
+    public interface SplitData<T, U, V> {
+        void accept(T t, U u, V V);
     }
 }

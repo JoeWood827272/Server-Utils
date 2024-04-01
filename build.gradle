@@ -27,7 +27,8 @@ dependencies {
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
 	//SGui
-	modImplementation include("eu.pb4:sgui:1.4.1+1.20.4") { exclude group: "net.fabricmc.fabric-api" }
+	//modImplementation include("eu.pb4:sgui:1.4.2+1.20.4") { exclude group: "net.fabricmc.fabric-api" }
+	modImplementation include("eu.pb4:sgui:1.4.3-lem-v1-1.20.4") { exclude group: "net.fabricmc.fabric-api" }
 
 	//Modified Fantasy
 	modImplementation include('xyz.nucleoid:fantasy:0.5.0-lem-v1-1.20.4') { exclude group: "net.fabricmc.fabric-api" }
@@ -37,17 +38,6 @@ dependencies {
 	modImplementation('me.lucko:fabric-permissions-api:0.3-SNAPSHOT') { exclude group: "net.fabricmc.fabric-api" }
 	compileOnly 'net.luckperms:api:5.4'
 	modImplementation "com.moandjiezana.toml:toml4j:0.7.2"
-
-	//Fabric Proxy Lite
-	//modImplementation('maven.modrinth:fabricproxy-lite:v2.7.0') { exclude group: "net.fabricmc.fabric-api" }
-
-	//Crossstitch
-	//modImplementation('maven.modrinth:crossstitch:0.1.6') { exclude group: "net.fabricmc.fabric-api" }
-
-	//Floodgate
-	//modImplementation('maven.modrinth:floodgate:2.2.0-SNAPSHOT-8') { exclude group: "net.fabricmc.fabric-api" }
-	//compileOnly('org.geysermc.floodgate:api:2.2.2-SNAPSHOT')
-	//modImplementation("org.geysermc.floodgate:floodgate-fabric:2.2.2-SNAPSHOT")
 
 	//carpet
 	modImplementation('maven.modrinth:carpet:1.4.128') { exclude group: "net.fabricmc.fabric-api" }

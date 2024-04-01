@@ -77,15 +77,6 @@ public class CustomMapLoaderMod extends Module {
         }
     }
 
-    public static void checkOptionalPackStatus(ServerPlayerEntity player, Identifier mapID) {
-        if (!"ask".equals(HostOptions.getGlobalAcceptValue(player)) || HostOptions.getOverwriteValue(player, mapID)) {
-            return;
-        }
-
-        loadingPlayers.add(player.getUuid());
-        //Votebook.generateMapOptionalPacks(player, CustomMapLoaderMod.BATTLE_MAPS.get(mapID)).open();
-    }
-
     public static void battleLoad(MinecraftServer server, Identifier addon, Identifier dimID, boolean centralSpawnEnabled, Collection<ServerPlayerEntity> players, Collection<CommandFunction<ServerCommandSource>> functions) {
         BattleMapAddon config = CustomMapLoaderMod.BATTLE_MAPS.get(addon);
         MapSize mapSize = CustomMapLoaderMod.autoSelectMapSize(config, server.getCurrentPlayerCount());

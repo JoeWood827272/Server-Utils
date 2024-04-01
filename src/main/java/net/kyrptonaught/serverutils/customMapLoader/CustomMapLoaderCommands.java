@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import eu.pb4.sgui.virtual.book.BookScreenHandler;
 import net.kyrptonaught.serverutils.customMapLoader.voting.HostOptions;
 import net.kyrptonaught.serverutils.customMapLoader.voting.Votebook;
 import net.kyrptonaught.serverutils.customMapLoader.voting.Voter;
@@ -51,9 +52,12 @@ public class CustomMapLoaderCommands {
                                         .then(CommandManager.argument("arg", StringArgumentType.string())
                                                 .executes(context -> {
                                                     String page = StringArgumentType.getString(context, "page");
-                                                    String arg = StringArgumentType.getString(context, "arg");
+                                                    String[] args = StringArgumentType.getString(context, "arg").split(",");
 
-                                                    Votebook.getPage(context.getSource().getPlayer(), page, arg).open();
+                                                    Votebook.getPage(context.getSource().getPlayer(), page, args).open();
+                                                    if("index".equals(args[0]) && context.getSource().getPlayer().currentScreenHandler instanceof BookScreenHandler screen)
+                                                        screen.getGui().setPage(Integer.parseInt(args[1]));
+
                                                     return 1;
                                                 })
                                                 .then(CommandManager.literal("after")
@@ -61,8 +65,11 @@ public class CustomMapLoaderCommands {
                                                             context.getChild().getCommand().run(context.getChild());
 
                                                             String page = StringArgumentType.getString(context, "page");
-                                                            String arg = StringArgumentType.getString(context, "arg");
-                                                            Votebook.getPage(context.getSource().getPlayer(), page, arg).open();
+                                                            String[] args = StringArgumentType.getString(context, "arg").split(",");
+
+                                                            Votebook.getPage(context.getSource().getPlayer(), page, args).open();
+                                                            if("index".equals(args[0]) && context.getSource().getPlayer().currentScreenHandler instanceof BookScreenHandler screen)
+                                                                screen.getGui().setPage(Integer.parseInt(args[1]));
 
                                                             return List.of();
                                                         }))))

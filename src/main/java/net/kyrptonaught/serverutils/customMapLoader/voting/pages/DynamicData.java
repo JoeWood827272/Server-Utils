@@ -5,5 +5,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.List;
 
-public record DynamicData(ServerPlayerEntity player, List<BattleMapAddon> addons, String arg) {
+public record DynamicData(ServerPlayerEntity player, List<BattleMapAddon> addons, String[] args) {
+    public String arg(int index) {
+        return args[index];
+    }
 }
