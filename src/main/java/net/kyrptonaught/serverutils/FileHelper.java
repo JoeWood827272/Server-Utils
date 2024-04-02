@@ -7,6 +7,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 public class FileHelper {
 
@@ -83,5 +84,52 @@ public class FileHelper {
 
     public static boolean isCharValid(char c) {
         return c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_' || c == ':' || c == '/' || c == '.' || c == '-';
+    }
+
+    public static void copyFile(Path source, Path destination) {
+        try {
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            System.out.println("Failed to copy file: " + source + " -> " + destination);
+            e.printStackTrace();
+        }
+    }
+
+    public static void zipDirectory(Path directory, Path zip) {
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(zip))) {
+            Files.walk(directory)
+                    .filter(path -> !Files.isDirectory(path))
+                    .forEach(path -> {
+                        ZipEntry zipEntry = new ZipEntry(directory.relativize(path).toString());
+                        try {
+                            zs.putNextEntry(zipEntry);
+                            Files.copy(path, zs);
+                            zs.closeEntry();
+                        } catch (IOException e) {
+                            System.err.println(e);
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean writeFile(Path filePath, String text) {
+        try {
+            Files.writeString(filePath, text);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error writing file: " + filePath);
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String fixPathSeparator(String name) {
+        return name.replaceAll("\\\\", "/");
+    }
+
+    public static String fixPathSeparator(Path path) {
+        return fixPathSeparator(path.toString());
     }
 }

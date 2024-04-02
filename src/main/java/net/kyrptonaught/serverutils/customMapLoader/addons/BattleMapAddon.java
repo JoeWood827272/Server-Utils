@@ -21,6 +21,15 @@ public class BattleMapAddon extends BaseMapAddon {
         });
     }
 
+    public void setMapDataForSize(MapSize mapSize, MapSizeConfig mapSizeConfig) {
+        switch (mapSize) {
+            case SMALL -> small_map = mapSizeConfig;
+            case LARGE -> large_map = mapSizeConfig;
+            case LARGE_PLUS -> large_plus_map = mapSizeConfig;
+            case REMASTERED -> remastered_map = mapSizeConfig;
+        }
+    }
+
     public boolean hasSize(MapSize size) {
         return getMapDataForSize(size) != null;
     }

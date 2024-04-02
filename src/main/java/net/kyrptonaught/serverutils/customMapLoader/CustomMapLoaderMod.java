@@ -42,13 +42,11 @@ public class CustomMapLoaderMod extends Module {
     private static final HashMap<Identifier, LoadedBattleMapInstance> LOADED_BATTLE_MAPS = new HashMap<>();
     private static final HashMap<Identifier, LobbyMapAddon> LOADED_LOBBIES = new HashMap<>();
 
-    public static final Set<UUID> loadingPlayers = new HashSet<>();
-
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             IO.discoverAddons(server);
-            Votebook.generateBookLibrary(CustomMapLoaderMod.BATTLE_MAPS.values().stream().toList());
+            Votebook.generateBookLibrary(getAllBattleMaps());
         });
         ServerTickEvents.START_SERVER_TICK.register(CustomMapLoaderMod::serverTick);
     }
@@ -56,6 +54,10 @@ public class CustomMapLoaderMod extends Module {
     @Override
     public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
         CustomMapLoaderCommands.registerCommands(dispatcher);
+    }
+
+    public static List<BattleMapAddon> getAllBattleMaps(){
+        return BATTLE_MAPS.values().stream().sorted(Comparator.comparing((battleMapAddon -> battleMapAddon.addon_id.getPath()))).toList();
     }
 
     public static void serverTick(MinecraftServer server) {
@@ -269,7 +271,7 @@ public class CustomMapLoaderMod extends Module {
 
     private static BlockPos parseBlockPos(String coords) {
         String[] coords_split = coords.split(" ");
-        return new BlockPos(Integer.parseInt(coords_split[0]), Integer.parseInt(coords_split[1]), Integer.parseInt(coords_split[2]));
+        return new BlockPos((int) Double.parseDouble(coords_split[0]), (int) Double.parseDouble(coords_split[1]), (int) Double.parseDouble(coords_split[2]));
     }
 
     private static ParsedPlayerCoords parseVec3D(String coords) {

@@ -29,13 +29,13 @@ public class CustomMapLoaderCommands {
         cmd.then(CommandManager.literal("voting")
                 .then(CommandManager.literal("openBook")
                         .executes(context -> {
-                            Votebook.generateBookLibrary(CustomMapLoaderMod.BATTLE_MAPS.values().stream().toList());
+                            Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
                             Votebook.getPage(context.getSource().getPlayer(), "title", null).open();
                             return 1;
                         }))
                 .then(CommandManager.literal("giveBook")
                         .executes(context -> {
-                            //Votebook.generateBookLibrary(CustomMapLoaderMod.BATTLE_MAPS.values().stream().toList());
+                            //Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             player.giveItemStack(Votebook.getPage(player, "title", null).getBook());
                             return 1;

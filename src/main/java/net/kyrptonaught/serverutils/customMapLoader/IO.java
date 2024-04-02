@@ -16,9 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
 
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.Enumeration;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -91,17 +89,17 @@ public class IO {
             while (entries.hasMoreElements()) {
                 try {
                     ZipEntry entry = entries.nextElement();
-                    if (entry.getName().startsWith(baseDirectory)) {
-                        Path newOut = outputPath.resolve(entry.getName().replace(baseDirectory, ""));
+                    String entryName = FileHelper.fixPathSeparator(entry.getName());
+                    if (entryName.startsWith(baseDirectory)) {
+                        Path newOut = outputPath.resolve(entryName.replace(baseDirectory, ""));
                         if (entry.isDirectory()) {
                             Files.createDirectories(newOut);
                         } else {
                             Files.createDirectories(newOut.getParent());
-                            Files.copy(zip.getInputStream(entry), newOut);
+                            Files.copy(zip.getInputStream(entry), newOut, StandardCopyOption.REPLACE_EXISTING);
                         }
                     }
                 } catch (FileAlreadyExistsException ignored) {
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -112,7 +110,7 @@ public class IO {
     }
 
     public static DimensionType addDimensionType(MinecraftServer server, Path addonPath, Identifier dimID) {
-        String dimJson = FileHelper.readFileFromZip(addonPath, "world/dimension_type.json");
+        String dimJson = FileHelper.readFileFromZip(addonPath, "dimension_type.json");
         if (dimJson != null) {
             DataResult<DimensionType> result = DimensionType.CODEC.parse(JsonOps.INSTANCE, ServerUtilsMod.getGson().fromJson(dimJson, JsonElement.class));
             DimensionType type = result.result().get();

@@ -6,15 +6,12 @@ import net.kyrptonaught.serverutils.customMapLoader.MapSize;
 import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
 import net.kyrptonaught.serverutils.customMapLoader.voting.pages.BookPage;
 import net.kyrptonaught.serverutils.customMapLoader.voting.pages.DynamicData;
-import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class Votebook {
@@ -84,7 +81,7 @@ public class Votebook {
     public static BookGui getPage(ServerPlayerEntity player, String page, String[] args) {
         if (dynamicLibrary.containsKey(page)) {
             BookPage book = createBasicPage();
-            dynamicLibrary.get(page).accept(new DynamicData(player, CustomMapLoaderMod.BATTLE_MAPS.values().stream().toList(), args), book);
+            dynamicLibrary.get(page).accept(new DynamicData(player, CustomMapLoaderMod.getAllBattleMaps(), args), book);
             return book.build(player);
         }
 
@@ -110,6 +107,8 @@ public class Votebook {
 
             packs.get(pack).add(config);
         }
+
+        List<Text> basePackOrdered = new ArrayList<>();
 
         List<Text> packsText = new ArrayList<>();
         packsText.add(dashTrans("lem.mapdecider.menu.mapvoting"));
@@ -151,13 +150,36 @@ public class Votebook {
                 builder.addPage(packPages.get(i).toArray(Text[]::new));
             }
 
-            packsText.add(withOpenCmd(bracket(packs.get(pack).get(0).getAddonPackText()).formatted(Formatting.GOLD), "mapPack_" + pack, hover));
+            if (isBase)
+                basePackOrdered.add(withOpenCmd(bracket(packs.get(pack).get(0).getAddonPackText()).formatted(Formatting.GOLD), "mapPack_" + pack, hover));
+            else
+                packsText.add(withOpenCmd(bracket(packs.get(pack).get(0).getAddonPackText()).formatted(Formatting.GOLD), "mapPack_" + pack, hover));
             bookLibrary.put("mapPack_" + pack, builder);
         }
 
         if (isBase && packs.containsKey("base_base")) {
             List<List<Text>> base_pages = generateMapPackPages(packs.get("base_base"), false);
-            packsText.addAll(base_pages.get(0));
+            basePackOrdered.addAll(base_pages.get(0));
+        }
+
+        if (isBase) {
+            basePackOrdered.sort(Comparator.comparingInt(text -> {
+                String str = text.getString();
+
+                if (str.startsWith("[M"))
+                    return Integer.parseInt(str.substring(str.length() - 2, str.length() - 1));
+                if (str.startsWith("[V"))
+                    return 100;
+                if (str.startsWith("[H"))
+                    return 101;
+                if (str.startsWith("[Fe"))
+                    return 102;
+                if (str.startsWith("[Fa"))
+                    return 103;
+
+                return 0;
+            }));
+            packsText.addAll(basePackOrdered);
         }
 
         packsText.add(Text.empty());
@@ -255,33 +277,45 @@ public class Votebook {
         BattleMapAddon addon = CustomMapLoaderMod.BATTLE_MAPS.get(new Identifier(data.arg(2)));
 
         Text requiredHeader = withHover(dashTrans("lem.mapdecider.menu.requiredpacks"), trimName(addon.getNameText(), 20));
-        splitAcrossPages(bookPage, 10, addon.required_packs.packs, requiredHeader, "map_" + addon.addon_id, true, (rpOption, index, pageText) -> {
-            MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
-            pageText.add(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY));
-        });
+        if (addon.required_packs == null || addon.required_packs.packs.isEmpty()) {
+            splitAcrossPages(bookPage, 1, List.of(Text.translatable("gui.none")), requiredHeader, "map_" + addon.addon_id, true, (rpOption, index, pageText) -> {
+                pageText.add(colored(rpOption,Formatting.DARK_GRAY));
+            });
+        } else {
+            splitAcrossPages(bookPage, 10, addon.required_packs.packs, requiredHeader, "map_" + addon.addon_id, true, (rpOption, index, pageText) -> {
+                MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
+                pageText.add(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY));
+            });
+        }
 
         Text optionalHeader = withHover(dashTrans("lem.mapdecider.menu.optionalpacks"), trimName(addon.getNameText(), 20));
-        splitAcrossPages(bookPage, 8, addon.optional_packs.packs, optionalHeader, "map_" + addon.addon_id, false, (rpOption, index, pageText) -> {
-            boolean overwrite = HostOptions.getOverwriteValue(data.player(), addon.addon_id);
-            String args = "index," + bookPage.size() + "," + addon.addon_id.toString();
+        if (addon.optional_packs == null || addon.optional_packs.packs.isEmpty()) {
+            splitAcrossPages(bookPage, 1, List.of(Text.translatable("gui.none")), optionalHeader, "map_" + addon.addon_id, false, (rpOption, index, pageText) -> {
+                pageText.add(colored(rpOption,Formatting.DARK_GRAY));
+            });
+        } else {
+            splitAcrossPages(bookPage, 8, addon.optional_packs.packs, optionalHeader, "map_" + addon.addon_id, false, (rpOption, index, pageText) -> {
+                boolean overwrite = HostOptions.getOverwriteValue(data.player(), addon.addon_id);
+                String args = "index," + bookPage.size() + "," + addon.addon_id.toString();
 
-            if (index == 0) {
-                String cmd = "custommaploader playerOptions optionalPacks globalAccept overwrite " + addon.addon_id;
-                MutableText enabled = toggleCheckBox(overwrite, "map_player_rp_settings", args, cmd);
-                pageText.add(colored(Text.translatable("lem.mapdecider.menu.optionalpacks.overwriteglobal", enabled), Formatting.DARK_GRAY));
-                pageText.add(Text.empty());
-            }
+                if (index == 0) {
+                    String cmd = "custommaploader playerOptions optionalPacks globalAccept overwrite " + addon.addon_id;
+                    MutableText enabled = toggleCheckBox(overwrite, "map_player_rp_settings", args, cmd);
+                    pageText.add(colored(Text.translatable("lem.mapdecider.menu.optionalpacks.overwriteglobal", enabled), Formatting.DARK_GRAY));
+                    pageText.add(Text.empty());
+                }
 
-            if (overwrite) {
-                MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
-                String cmd = "custommaploader playerOptions optionalPacks " + addon.addon_id + " accept " + rpOption.packID;
-                MutableText enabled = toggleCheckBox(HostOptions.getMapResourcePackValue(data.player(), addon.addon_id, rpOption.packID), "map_player_rp_settings", args, cmd).append(" ");
-                pageText.add(enabled.append(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY)));
-            } else {
-                MutableText hover = Text.translatable("lem.mapdecider.menu.optionalpacks.enableoverwrite");
-                pageText.add(colored(withHover(toggleCheckBox(false).append(" ").append(trimName(rpOption.getNameText(), 20)), hover), Formatting.GRAY));
-            }
-        });
+                if (overwrite) {
+                    MutableText hover = rpOption.getNameText().append("\n").append(rpOption.getDescriptionText());
+                    String cmd = "custommaploader playerOptions optionalPacks " + addon.addon_id + " accept " + rpOption.packID;
+                    MutableText enabled = toggleCheckBox(HostOptions.getMapResourcePackValue(data.player(), addon.addon_id, rpOption.packID), "map_player_rp_settings", args, cmd).append(" ");
+                    pageText.add(enabled.append(colored(withHover(trimName(rpOption.getNameText(), 20), hover), Formatting.DARK_GRAY)));
+                } else {
+                    MutableText hover = Text.translatable("lem.mapdecider.menu.optionalpacks.enableoverwrite");
+                    pageText.add(colored(withHover(toggleCheckBox(false).append(" ").append(trimName(rpOption.getNameText(), 20)), hover), Formatting.GRAY));
+                }
+            });
+        }
     }
 
     private static void generatePlayerPackPolicy(DynamicData data, BookPage bookPage) {
