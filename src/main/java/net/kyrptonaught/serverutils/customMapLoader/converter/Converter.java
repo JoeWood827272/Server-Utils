@@ -6,6 +6,8 @@ import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.customMapLoader.MapSize;
 import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
 import net.kyrptonaught.serverutils.customMapLoader.addons.LobbyMapAddon;
+import net.kyrptonaught.serverutils.customMapLoader.addons.ResourcePackList;
+import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
@@ -21,54 +23,66 @@ import java.util.stream.Stream;
 
 public class Converter {
 
+    public static void ConvertAll() {
+        BattleConvert();
+        LobbyConvert();
+    }
+
     public static void BattleConvert() {
-        long time = System.nanoTime();
-        String[] maps = new String[]{
-                "atlantis",
-                "atomics",
-                "capitol",
-                "castle",
-                "dig",
-                "festive",
-                "halloween",
-                "invasion",
-                "lair",
-                "libertalia",
-                "medusa",
-                "ruin",
-                "siege",
-                "shipyard",
-                "valley",
-                "castle",
-                "cavern",
-                "cove",
-                "crucible",
-                "frontier",
-                "shrunk",
-                "temple"
+        BattleMapData[] battlemaps = new BattleMapData[]{
+                new BattleMapData("cavern", "lem.base:vanilla", "mappack0", "lem.battle.mapdecider.menu.voting.mappack0"),
+                new BattleMapData("cove", "lem.base:vanilla", "mappack0", "lem.battle.mapdecider.menu.voting.mappack0"),
+                new BattleMapData("crucible", "lem.base:vanilla", "mappack0", "lem.battle.mapdecider.menu.voting.mappack0"),
+
+                new BattleMapData("lair", "lem.base:fantasy", "mappack1", "lem.battle.mapdecider.menu.voting.mappack1"),
+                new BattleMapData("medusa", "lem.base:greek", "mappack1", "lem.battle.mapdecider.menu.voting.mappack1"),
+                new BattleMapData("temple", "lem.base:vanilla", "mappack1", "lem.battle.mapdecider.menu.voting.mappack1"),
+
+                new BattleMapData("atlantis", "lem.base:greek", "mappack2", "lem.battle.mapdecider.menu.voting.mappack2"),
+                new BattleMapData("ruin", "lem.base:city", "mappack2", "lem.battle.mapdecider.menu.voting.mappack2"),
+                new BattleMapData("siege", "lem.base:fantasy", "mappack2", "lem.battle.mapdecider.menu.voting.mappack2"),
+
+                new BattleMapData("castle", "lem.base:vanilla", "mappack3", "lem.battle.mapdecider.menu.voting.mappack3"),
+                new BattleMapData("invasion", "lem.base:city", "mappack3", "lem.battle.mapdecider.menu.voting.mappack3"),
+                new BattleMapData("shipyard", "lem.base:steampunk", "mappack3", "lem.battle.mapdecider.menu.voting.mappack3"),
+
+                new BattleMapData("dig", "lem.base:vanilla", "mappack4", "lem.battle.mapdecider.menu.voting.mappack4"),
+                new BattleMapData("frontier", "lem.base:vanilla", "mappack4", "lem.battle.mapdecider.menu.voting.mappack4"),
+                new BattleMapData("shrunk", "lem.base:plastic", "mappack4", "lem.battle.mapdecider.menu.voting.mappack4"),
+
+                new BattleMapData("valley", "lem.base:chinese", "base", ""),
+                new BattleMapData("halloween", "lem.base:halloween", "base", ""),
+                new BattleMapData("festive", "lem.base:festive", "base", ""),
+
+                new BattleMapData("atomics", "lem.base:fallout", "mappackfallout", "lem.battle.mapdecider.menu.voting.fallout"),
+                new BattleMapData("capitol", "lem.base:fallout", "mappackfallout", "lem.battle.mapdecider.menu.voting.fallout"),
+                new BattleMapData("libertalia", "lem.base:fallout", "mappackfallout", "lem.battle.mapdecider.menu.voting.fallout"),
         };
 
         String input = "C:\\Users\\antho\\Desktop\\Minecraft Mod Dev\\LEMAddonConverter\\input";
         String output = "C:\\Users\\antho\\Desktop\\Minecraft Mod Dev\\LEMAddonConverter\\output";
 
-        for (String map : maps) {
-            Path tempOut = Path.of(output).resolve(map);
+        for (BattleMapData map : battlemaps) {
+            Path tempOut = Path.of(output).resolve(map.map);
 
             FileHelper.createDir(tempOut);
 
             BattleMapAddon addon = new BattleMapAddon();
-            addon.addon_id = new Identifier("4jstudios", map);
+            addon.addon_id = new Identifier("4jstudios", map.map);
             addon.addon_type = BattleMapAddon.TYPE;
-            addon.addon_pack = "mappack2";
-            addon.addon_pack_key = "lem.battle.mapdecider.menu.voting.mappack2";
-            addon.name_key = "lem.battle.mapdecider.menu.voting.mapname." + map;
-            addon.description_key = "lem.battle.mapdecider.menu.voting.mapdesc." + map;
+            addon.addon_pack = map.mappack;
+            addon.addon_pack_key = map.mappackkey;
+            addon.name_key = "lem.battle.mapdecider.menu.voting.mapname." + map.map;
+            addon.description_key = "lem.battle.mapdecider.menu.voting.mapdesc." + map.map;
             addon.authors = "4J Studios";
             addon.version = "1.0";
 
+            addon.required_packs = new ResourcePackList();
+            addon.required_packs.packs.add(new DummyPack(map.resourcepack));
+
             for (MapSize mapSize : MapSize.values()) {
                 String suffix = (mapSize == MapSize.LARGE ? "" : ("_" + mapSize.fileName));
-                Path dir = Path.of(input).resolve(map + suffix);
+                Path dir = Path.of(input).resolve(map.map + suffix);
 
                 if (!Files.exists(dir)) continue;
 
@@ -88,48 +102,46 @@ public class Converter {
                 addon.setMapDataForSize(mapSize, config);
             }
 
-            FileHelper.copyFile(Path.of(input).resolve("types").resolve(map + ".json"), tempOut.resolve("dimension_type.json"));
+            FileHelper.copyFile(Path.of(input).resolve("types").resolve(map.map + ".json"), tempOut.resolve("dimension_type.json"));
 
             String json = ServerUtilsMod.getGson().toJson(addon);
             FileHelper.writeFile(tempOut.resolve("addon.json"), json);
 
-            FileHelper.zipDirectory(tempOut, Path.of(output).resolve(map + ".lemaddon"));
+            FileHelper.zipDirectory(tempOut, Path.of(output).resolve(map.map + ".lemaddon"));
             FileHelper.deleteDir(tempOut);
-
-            System.out.println(addon.addon_id);
         }
-
-        System.out.println("Took: " + (System.nanoTime() - time));
     }
 
     public static void LobbyConvert() {
-        long time = System.nanoTime();
-        String[] maps = new String[]{
-                "lobby_new",
-                "lobby_anniversary",
-                "lobby_festive",
-                "lobby_halloween",
-                "lobby_old"
-        };
+        LobbyMapData[] lobbyMaps = new LobbyMapData[]{
+                new LobbyMapData("lobby_new", "lem.base:vanilla", "-357 70 -341 -90 0"),
+                new LobbyMapData("lobby_anniversary", "lem.base:vanilla", ""),
+                new LobbyMapData("lobby_festive", "lem.base:festive", "-357 70 -341 -90 0"),
+                new LobbyMapData("lobby_halloween", "lem.base:halloween", "-357 70 -341 -90 0"),
+                new LobbyMapData("lobby_old", "lem.base:vanilla", ""),
 
+        };
         String input = "C:\\Users\\antho\\Desktop\\Minecraft Mod Dev\\LEMAddonConverter\\input";
         String output = "C:\\Users\\antho\\Desktop\\Minecraft Mod Dev\\LEMAddonConverter\\output";
 
-        for (String map : maps) {
-            Path tempOut = Path.of(output).resolve(map);
+        for (LobbyMapData lobby : lobbyMaps) {
+            Path tempOut = Path.of(output).resolve(lobby.map);
 
             FileHelper.createDir(tempOut);
 
             LobbyMapAddon addon = new LobbyMapAddon();
-            addon.addon_id = new Identifier("4jstudios", map);
+            addon.addon_id = new Identifier("4jstudios", lobby.map);
             addon.addon_type = LobbyMapAddon.TYPE;
             addon.addon_pack = "base";
-            addon.name_key = "lem.menu.host.config.update.lobby." + map;
-            addon.description_key = "lem.menu.host.config.update.lobby.desc." + map;
+            addon.name_key = "lem.menu.host.config.update.lobby." + lobby.map;
+            addon.description_key = "lem.menu.host.config.update.lobby.desc." + lobby.map;
             addon.authors = "4J Studios";
             addon.version = "1.0";
 
-            Path dir = Path.of(input).resolve(map);
+            addon.required_packs = new ResourcePackList();
+            addon.required_packs.packs.add(new DummyPack(lobby.resourcepack));
+
+            Path dir = Path.of(input).resolve(lobby.map);
 
             FileHelper.copyDirectory(dir, tempOut.resolve("world").resolve("lobby"));
 
@@ -140,22 +152,17 @@ public class Converter {
             addon.world_border_coords_1 = entities.get("BorderEntity").get(0);
             addon.world_border_coords_2 = entities.get("BorderEntity").get(1);
 
-            addon.winner_coords = "-357 70 -341 -90 0";
+            addon.winner_coords = lobby.winnercoords;
 
-            FileHelper.copyFile(Path.of(input).resolve("types").resolve(map + ".json"), tempOut.resolve("dimension_type.json"));
+            FileHelper.copyFile(Path.of(input).resolve("types").resolve(lobby.map + ".json"), tempOut.resolve("dimension_type.json"));
 
             String json = ServerUtilsMod.getGson().toJson(addon);
             FileHelper.writeFile(tempOut.resolve("addon.json"), json);
 
-            FileHelper.zipDirectory(tempOut, Path.of(output).resolve(map + ".lemaddon"));
+            FileHelper.zipDirectory(tempOut, Path.of(output).resolve(lobby.map + ".lemaddon"));
             FileHelper.deleteDir(tempOut);
-
-            System.out.println(addon.addon_id);
         }
-
-        System.out.println("Took: " + (System.nanoTime() - time));
     }
-
 
     private static HashMap<String, List<String>> getEntitesForMap(Path dir) {
         HashMap<String, List<String>> entities = new HashMap<>();
@@ -211,6 +218,20 @@ public class Converter {
                 chunks.add(NbtIo.readCompound(new DataInputStream(ChunkStreamVersion.DEFLATE.wrap(new FileInputStream(raf.getFD())))));
             }
             return chunks;
+        }
+    }
+
+    public record BattleMapData(String map, String resourcepack, String mappack, String mappackkey) {
+    }
+
+    public record LobbyMapData(String map, String resourcepack, String winnercoords) {
+
+    }
+
+    public static class DummyPack extends ResourcePackConfig.RPOption {
+        public DummyPack(String pack) {
+            super();
+            this.packID = new Identifier(pack);
         }
     }
 

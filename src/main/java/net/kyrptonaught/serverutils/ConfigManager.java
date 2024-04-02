@@ -18,7 +18,7 @@ public class ConfigManager {
             .setPrettyPrinting()
             .setLenient()
             .registerTypeAdapter(Identifier.class, new Identifier.Serializer())
-            .registerTypeAdapter(ResourcePackList.class, new ResourcePackList.Deserializer())
+            .registerTypeAdapter(ResourcePackList.class, new ResourcePackList.Serializer())
             .create();
 
     public ConfigManager(String MOD_ID) {

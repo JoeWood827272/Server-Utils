@@ -13,7 +13,7 @@ public class ResourcePackList {
 
     public List<ResourcePackConfig.RPOption> packs = new ArrayList<>();
 
-    public static class Deserializer implements JsonDeserializer<ResourcePackList> {
+    public static class Serializer implements JsonSerializer<ResourcePackList>, JsonDeserializer<ResourcePackList> {
         @Override
         public ResourcePackList deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             ResourcePackList packList = new ResourcePackList();
@@ -28,6 +28,16 @@ public class ResourcePackList {
             }
 
             return packList;
+        }
+
+        @Override
+        public JsonElement serialize(ResourcePackList src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonArray array = new JsonArray();
+            for (int i = 0; i < src.packs.size(); i++) {
+                array.add(src.packs.get(i).packID.toString());
+            }
+
+            return array;
         }
     }
 }
