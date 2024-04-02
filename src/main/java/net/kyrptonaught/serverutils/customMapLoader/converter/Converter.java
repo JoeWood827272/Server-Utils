@@ -5,6 +5,7 @@ import net.kyrptonaught.serverutils.FileHelper;
 import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.customMapLoader.MapSize;
 import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
+import net.kyrptonaught.serverutils.customMapLoader.addons.LobbyMapAddon;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 
 public class Converter {
 
-    public static void convert() {
+    public static void BattleConvert() {
         long time = System.nanoTime();
         String[] maps = new String[]{
                 "atlantis",
@@ -86,6 +87,60 @@ public class Converter {
 
                 addon.setMapDataForSize(mapSize, config);
             }
+
+            FileHelper.copyFile(Path.of(input).resolve("types").resolve(map + ".json"), tempOut.resolve("dimension_type.json"));
+
+            String json = ServerUtilsMod.getGson().toJson(addon);
+            FileHelper.writeFile(tempOut.resolve("addon.json"), json);
+
+            FileHelper.zipDirectory(tempOut, Path.of(output).resolve(map + ".lemaddon"));
+            FileHelper.deleteDir(tempOut);
+
+            System.out.println(addon.addon_id);
+        }
+
+        System.out.println("Took: " + (System.nanoTime() - time));
+    }
+
+    public static void LobbyConvert() {
+        long time = System.nanoTime();
+        String[] maps = new String[]{
+                "lobby_new",
+                "lobby_anniversary",
+                "lobby_festive",
+                "lobby_halloween",
+                "lobby_old"
+        };
+
+        String input = "C:\\Users\\antho\\Desktop\\Minecraft Mod Dev\\LEMAddonConverter\\input";
+        String output = "C:\\Users\\antho\\Desktop\\Minecraft Mod Dev\\LEMAddonConverter\\output";
+
+        for (String map : maps) {
+            Path tempOut = Path.of(output).resolve(map);
+
+            FileHelper.createDir(tempOut);
+
+            LobbyMapAddon addon = new LobbyMapAddon();
+            addon.addon_id = new Identifier("4jstudios", map);
+            addon.addon_type = LobbyMapAddon.TYPE;
+            addon.addon_pack = "base";
+            addon.name_key = "lem.menu.host.config.update.lobby." + map;
+            addon.description_key = "lem.menu.host.config.update.lobby.desc." + map;
+            addon.authors = "4J Studios";
+            addon.version = "1.0";
+
+            Path dir = Path.of(input).resolve(map);
+
+            FileHelper.copyDirectory(dir, tempOut.resolve("world").resolve("lobby"));
+
+            HashMap<String, List<String>> entities = getEntitesForMap(dir);
+
+            addon.spawn_coords = entities.get("LobbyTP").toArray(String[]::new);
+            addon.center_coords = entities.get("LobbyCenter").get(0);
+            addon.world_border_coords_1 = entities.get("BorderEntity").get(0);
+            addon.world_border_coords_2 = entities.get("BorderEntity").get(1);
+
+            addon.winner_coords = "-357 70 -341 -90 0";
 
             FileHelper.copyFile(Path.of(input).resolve("types").resolve(map + ".json"), tempOut.resolve("dimension_type.json"));
 
