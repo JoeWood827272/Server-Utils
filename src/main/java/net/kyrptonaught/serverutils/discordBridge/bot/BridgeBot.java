@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageType;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -52,11 +53,14 @@ public class BridgeBot extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event != null && shouldRespondToMessage(event)) {
             if (event.getMessage().getReferencedMessage() != null) {
-                Text message = FormatToMC.parseMessage(event.getMessage().getReferencedMessage(), Text.literal("    ┌──── ").formatted(Formatting.GRAY));
+                Text message = FormatToMC.parseMessage(event.getMessage().getReferencedMessage(), Text.literal("    ┌──── ").formatted(Formatting.GRAY), false);
                 server.getPlayerManager().broadcast(message, false);
             }
 
-            Text message = FormatToMC.parseMessage(event.getMessage(), Text.literal("[Discord] ").formatted(Formatting.BLUE));
+            Role adminMessageRole = event.getGuild().getRoleById(DiscordBridgeMod.config().adminMessageRole);
+            boolean admin = event.getMember().getRoles().contains(adminMessageRole);
+
+            Text message = FormatToMC.parseMessage(event.getMessage(), Text.literal("[Discord] ").formatted(Formatting.BLUE), admin);
             if (message != null)
                 server.getPlayerManager().broadcast(message, false);
         }
@@ -93,7 +97,6 @@ public class BridgeBot extends ListenerAdapter {
                 event.getAuthor().getIdLong() != jda.getSelfUser().getIdLong() &&
                 (isAllowedChannel(event.getChannel().getIdLong()));
     }
-
 
     public boolean isAllowedChannel(long channel) {
         return getChannel() == channel;

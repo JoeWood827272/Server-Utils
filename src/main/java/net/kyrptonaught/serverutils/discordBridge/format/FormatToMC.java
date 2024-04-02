@@ -16,7 +16,10 @@ import java.util.List;
 
 public class FormatToMC {
 
-    public static Text parseMessage(Message discordMessage, MutableText prefix) {
+    public static Text parseMessage(Message discordMessage, MutableText prefix, boolean isAdmin) {
+        if(isAdmin && discordMessage.getContentRaw().startsWith("$PARSE="))
+            return parseAdminTextJson(discordMessage, prefix);
+
         HashMap<String, String> replacementURLs = new HashMap<>();
 
         for (MessageEmbed embed : discordMessage.getEmbeds())
@@ -28,7 +31,7 @@ public class FormatToMC {
             replacementURLs.put("Sticker:" + stickerItem.getName(), stickerItem.getIcon().getUrl());
 
 
-        if (discordMessage.getContentDisplay().isEmpty() && replacementURLs.size() == 0) {
+        if (discordMessage.getContentDisplay().isEmpty() && replacementURLs.isEmpty()) {
             return null;
         }
 
@@ -38,7 +41,7 @@ public class FormatToMC {
             message.append(parseText(str, replacementURLs));
         }
 
-        if (replacementURLs.size() > 0) {
+        if (!replacementURLs.isEmpty()) {
             message.append("{");
 
             Iterator<String> urlIterator = replacementURLs.keySet().iterator();
@@ -48,6 +51,21 @@ public class FormatToMC {
             }
             message.append("}");
         }
+
+        return message;
+    }
+
+    private static Text parseAdminTextJson(Message discordMessage, MutableText prefix) {
+        MutableText message = Text.literal("").append(prefix).append(getAuthor(discordMessage));
+
+        MutableText parsed = null;
+        try {
+            parsed = Text.Serialization.fromLenientJson(discordMessage.getContentRaw().replaceFirst("\\$PARSE=", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (parsed == null) message.append("PARSE ERROR");
+        else message.append(parsed);
 
         return message;
     }

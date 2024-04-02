@@ -20,5 +20,7 @@ public class DiscordBridgeConfig extends AbstractConfigFile {
     public long linkRoleID;
     public long moderatorRoleID;
 
+    public long adminMessageRole;
+
     public boolean canDiscordMSGCMDPing = true;
 }
