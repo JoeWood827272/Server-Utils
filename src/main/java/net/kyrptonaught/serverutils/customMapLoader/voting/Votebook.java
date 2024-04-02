@@ -268,8 +268,9 @@ public class Votebook {
         Text header = dashTrans("lem.menu.host.config.maps.enabled.header");
         splitAcrossPages(bookPage, 10, packMods, header, "host_map_settings", false, (config, index, pageText) -> {
             boolean enabled = config.isAddonEnabled;
+            String args = "index," + bookPage.size();
             String cmd = "custommaploader hostOptions enableMap " + config.addon_id + " " + (!enabled);
-            pageText.add(withHover(withOpenAfterCmd(colored(bracket(trimName(config.getNameText(), 20)), enabled ? Formatting.GREEN : Formatting.RED), "host_map_enable_disable", cmd), Text.translatable("lem.menu.host.config.maps.enabled.toggle")));
+            pageText.add(withHover(withOpenAfterCmd(colored(bracket(trimName(config.getNameText(), 20)), enabled ? Formatting.GREEN : Formatting.RED), "host_map_enable_disable", args, cmd), Text.translatable("lem.menu.host.config.maps.enabled.toggle")));
         });
     }
 
