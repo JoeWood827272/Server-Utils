@@ -219,7 +219,11 @@ public class Votebook {
             mapText.add(config.getDescriptionText().formatted(Formatting.DARK_AQUA));
             mapText.add(Text.empty());
 
-            mapText.add(voteButton(config.addon_id).append(" ").append(backButton("mapPack_" + config.addon_pack).append(" ").append(withOpenCmd(bracketTrans("lem.generic.more"), "map_player_rp_settings", "index,0,"+ config.addon_id.toString()))));
+            MutableText backBtn = backButton("mapPack_" + config.addon_pack);
+            if(config.addon_pack.equals("base_base"))
+                backBtn = backButton("baseMaps");
+
+            mapText.add(voteButton(config.addon_id).append(" ").append(backBtn.append(" ").append(withOpenCmd(bracketTrans("lem.generic.more"), "map_player_rp_settings", "index,0,"+ config.addon_id.toString()))));
 
             bookLibrary.put("map_" + config.addon_id, createBasicPage().addPage(mapText.toArray(Text[]::new)));
         }
