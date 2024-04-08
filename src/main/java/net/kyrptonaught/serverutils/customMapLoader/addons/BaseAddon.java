@@ -10,10 +10,10 @@ public class BaseAddon {
 
     public Identifier addon_id;
 
-    private String name;
+    public String name;
     public String name_key;
 
-    private String description;
+    public String description;
     public String description_key;
 
     public String authors;

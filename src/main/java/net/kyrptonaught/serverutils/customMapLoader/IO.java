@@ -46,7 +46,7 @@ public class IO {
                         if (path.getParent().getFileName().toString().equals("base")) {
                             config.isBaseAddon = true;
                             config.addon_pack = "base_" + config.addon_pack;
-                        } else if (!path.getParent().getFileName().toString().equals("lebmods")) {
+                        } else if (!path.getParent().getFileName().toString().equals("lemaddons")) {
                             config.addon_pack = path.getParent().getFileName().toString();
                         }
 

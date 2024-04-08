@@ -125,6 +125,16 @@ public class FileHelper {
         return false;
     }
 
+    public static String readFile(Path filePath) {
+        try {
+            return Files.readString(filePath);
+        } catch (Exception e) {
+            System.out.println("Error reading file: " + filePath);
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String fixPathSeparator(String name) {
         return name.replaceAll("\\\\", "/");
     }
