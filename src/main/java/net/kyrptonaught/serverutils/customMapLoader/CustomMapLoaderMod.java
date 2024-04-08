@@ -107,7 +107,7 @@ public class CustomMapLoaderMod extends Module {
                 });
 
         server.getPlayerManager().broadcast(Text.literal("Loading map: ").append(config.getNameText()), false);
-        MessageSender.sendGameMessageWMentions(Text.literal("Loading map: ").append(config.getNameText()));
+        MessageSender.sendGameMessageWMentions(Text.literal("Loading map ").append(config.getNameText()));
     }
 
     private static void battlePrepare(LoadedBattleMapInstance instance, Collection<ServerPlayerEntity> players) {
@@ -115,7 +115,10 @@ public class CustomMapLoaderMod extends Module {
         BattleMapAddon.MapSizeConfig sizedConfig = instance.getSizedAddon();
         ParsedPlayerCoords centerPos = parseVec3D(sizedConfig.center_coords);
 
-        CustomWorldBorderMod.getCustomWorldBorderManager(world).setCustomWorldBorder(world, parseBlockPos(sizedConfig.world_border_coords_1), parseBlockPos(sizedConfig.world_border_coords_2));
+        if (sizedConfig.world_border_coords_1 != null && sizedConfig.world_border_coords_2 != null)
+            CustomWorldBorderMod.getCustomWorldBorderManager(world).setCustomWorldBorder(world, parseBlockPos(sizedConfig.world_border_coords_1), parseBlockPos(sizedConfig.world_border_coords_2));
+        else
+            CustomWorldBorderMod.getCustomWorldBorderManager(world).setCustomWorldBorder(world, new BlockPos(-10000,-10000,-10000), new BlockPos(10000,10000,10000));
 
         ChestTrackerMod.reset(world.getServer());
         for (String pos : sizedConfig.chest_tracker_coords) {

@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
+import net.kyrptonaught.serverutils.customMapLoader.converter.Converter;
 import net.kyrptonaught.serverutils.customMapLoader.voting.HostOptions;
 import net.kyrptonaught.serverutils.customMapLoader.voting.Votebook;
 import net.kyrptonaught.serverutils.customMapLoader.voting.Voter;
@@ -29,7 +30,7 @@ public class CustomMapLoaderCommands {
         cmd.then(CommandManager.literal("voting")
                 .then(CommandManager.literal("openBook")
                         .executes(context -> {
-                            Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
+                            //Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
                             Votebook.getPage(context.getSource().getPlayer(), "title", null).open();
                             return 1;
                         }))
@@ -55,7 +56,7 @@ public class CustomMapLoaderCommands {
                                                     String[] args = StringArgumentType.getString(context, "arg").split(",");
 
                                                     Votebook.getPage(context.getSource().getPlayer(), page, args).open();
-                                                    if("index".equals(args[0]) && context.getSource().getPlayer().currentScreenHandler instanceof BookScreenHandler screen)
+                                                    if ("index".equals(args[0]) && context.getSource().getPlayer().currentScreenHandler instanceof BookScreenHandler screen)
                                                         screen.getGui().setPage(Integer.parseInt(args[1]));
 
                                                     return 1;
@@ -68,7 +69,7 @@ public class CustomMapLoaderCommands {
                                                             String[] args = StringArgumentType.getString(context, "arg").split(",");
 
                                                             Votebook.getPage(context.getSource().getPlayer(), page, args).open();
-                                                            if("index".equals(args[0]) && context.getSource().getPlayer().currentScreenHandler instanceof BookScreenHandler screen)
+                                                            if ("index".equals(args[0]) && context.getSource().getPlayer().currentScreenHandler instanceof BookScreenHandler screen)
                                                                 screen.getGui().setPage(Integer.parseInt(args[1]));
 
                                                             return List.of();
@@ -83,10 +84,10 @@ public class CustomMapLoaderCommands {
                                             return List.of();
                                         })))))
                 .then(CommandManager.literal("vote")
-                        .then(CommandManager.argument("map", IdentifierArgumentType.identifier())
+                        .then(CommandManager.argument("mapName", IdentifierArgumentType.identifier())
                                 .executes(context -> {
                                     ServerPlayerEntity player = context.getSource().getPlayer();
-                                    Identifier map = IdentifierArgumentType.getIdentifier(context, "map");
+                                    Identifier map = IdentifierArgumentType.getIdentifier(context, "mapName");
 
                                     Voter.voteFor(context.getSource().getServer(), player, map);
                                     return 1;
@@ -276,6 +277,24 @@ public class CustomMapLoaderCommands {
                                             CustomMapLoaderMod.teleportToLobby(id, players, null);
                                             return 1;
                                         })))));
+    /*
+        cmd.then(CommandManager.literal("reload")
+                .executes(context -> {
+                    CustomMapLoaderMod.BATTLE_MAPS.clear();
+                    CustomMapLoaderMod.LOBBY_MAPS.clear();
+                    IO.discoverAddons(context.getSource().getServer());
+                    Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
+                    return 1;
+                }));
+
+     */
+
+        cmd.then(CommandManager.literal("convert")
+                .executes(context -> {
+                    Converter.ConvertAll();
+                    return 1;
+                }));
+
         dispatcher.register(cmd);
     }
 }
