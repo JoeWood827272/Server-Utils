@@ -199,12 +199,8 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
     }
 
     private static boolean hasNewPacks(List<ResourcePackConfig.RPOption> packList, ServerPlayerEntity player) {
-
         List<UUID> c = new ArrayList<>();
-        playerLoaded.get(player.getUuid()).getPacks().forEach((uuid, status) -> {
-            if (status.isTempPack())
-                c.add(uuid);
-        });
+        playerLoaded.get(player.getUuid()).getPacks().forEach((uuid, status) -> c.add(uuid));
 
         List<UUID> n = new ArrayList<>();
         for (ResourcePackConfig.RPOption rpOption : packList) {
