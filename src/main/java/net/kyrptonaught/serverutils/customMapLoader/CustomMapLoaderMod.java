@@ -19,6 +19,8 @@ import net.kyrptonaught.serverutils.discordBridge.MessageSender;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
@@ -30,6 +32,7 @@ import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -44,16 +47,26 @@ public class CustomMapLoaderMod extends Module {
 
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            IO.discoverAddons(server);
-            Votebook.generateBookLibrary(getAllBattleMaps());
-        });
+        ServerLifecycleEvents.SERVER_STARTING.register(CustomMapLoaderMod::reloadAddonFiles);
         ServerTickEvents.START_SERVER_TICK.register(CustomMapLoaderMod::serverTick);
     }
 
     @Override
     public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
         CustomMapLoaderCommands.registerCommands(dispatcher);
+    }
+
+    public static void reloadAddonFiles(MinecraftServer server){
+        Registry<DimensionType> dimensionTypeRegistry = server.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE);
+        ((RegistryUnfreezer) dimensionTypeRegistry).unfreeze();
+
+        BATTLE_MAPS.clear();
+        LOBBY_MAPS.clear();
+
+        IO.discoverAddons(server);
+        Votebook.generateBookLibrary(getAllBattleMaps());
+
+        dimensionTypeRegistry.freeze();
     }
 
     public static List<BattleMapAddon> getAllBattleMaps(){

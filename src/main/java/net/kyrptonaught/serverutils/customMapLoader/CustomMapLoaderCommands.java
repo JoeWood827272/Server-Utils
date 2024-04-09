@@ -277,17 +277,12 @@ public class CustomMapLoaderCommands {
                                             CustomMapLoaderMod.teleportToLobby(id, players, null);
                                             return 1;
                                         })))));
-    /*
+
         cmd.then(CommandManager.literal("reload")
                 .executes(context -> {
-                    CustomMapLoaderMod.BATTLE_MAPS.clear();
-                    CustomMapLoaderMod.LOBBY_MAPS.clear();
-                    IO.discoverAddons(context.getSource().getServer());
-                    Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
+                    CustomMapLoaderMod.reloadAddonFiles(context.getSource().getServer());
                     return 1;
                 }));
-
-     */
 
         cmd.then(CommandManager.literal("convert")
                 .executes(context -> {

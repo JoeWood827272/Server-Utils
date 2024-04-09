@@ -12,6 +12,7 @@ import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
 import net.kyrptonaught.serverutils.customMapLoader.addons.LobbyMapAddon;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.SimpleRegistry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
@@ -115,13 +116,12 @@ public class IO {
             DataResult<DimensionType> result = DimensionType.CODEC.parse(JsonOps.INSTANCE, ServerUtilsMod.getGson().fromJson(dimJson, JsonElement.class));
             DimensionType type = result.result().get();
 
-            Registry<DimensionType> dimensionTypeRegistry = server.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE);
-            ((RegistryUnfreezer) dimensionTypeRegistry).unfreeze();
-            Registry.register(dimensionTypeRegistry, dimID, type);
+            SimpleRegistry<DimensionType> dimensionTypeRegistry = (SimpleRegistry<DimensionType>) server.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE);
 
+            if (!dimensionTypeRegistry.containsId(dimID))
+                Registry.register(dimensionTypeRegistry, dimID, type);
             return type;
         }
-
         return null;
     }
 }
