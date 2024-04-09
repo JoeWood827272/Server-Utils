@@ -18,6 +18,7 @@ import net.kyrptonaught.serverutils.datapackInteractables.DatapackInteractables;
 import net.kyrptonaught.serverutils.dimensionLoader.CustomDimHolder;
 import net.kyrptonaught.serverutils.dimensionLoader.DimensionLoaderMod;
 import net.kyrptonaught.serverutils.discordBridge.MessageSender;
+import net.kyrptonaught.serverutils.playerJoinLocation.PlayerJoinLocationMod;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
@@ -81,6 +82,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
             List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();
             for (int i = players.size() - 1; i >= 0; i--) {
                 CMDHelper.executeAs(players.get(i), RECONFIG_FUNCTION);
+                PlayerJoinLocationMod.excludePlayer(players.get(i));
                 players.get(i).networkHandler.reconfigure();
             }
         }
@@ -92,7 +94,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         handler.endConfiguration();
     }
 
-    public static List<BattleMapAddon> getAllBattleMaps(){
+    public static List<BattleMapAddon> getAllBattleMaps() {
         return BATTLE_MAPS.values().stream().sorted(Comparator.comparing((battleMapAddon -> battleMapAddon.addon_id.getPath()))).toList();
     }
 
@@ -154,7 +156,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         if (sizedConfig.world_border_coords_1 != null && sizedConfig.world_border_coords_2 != null)
             CustomWorldBorderMod.getCustomWorldBorderManager(world).setCustomWorldBorder(world, parseBlockPos(sizedConfig.world_border_coords_1), parseBlockPos(sizedConfig.world_border_coords_2));
         else
-            CustomWorldBorderMod.getCustomWorldBorderManager(world).setCustomWorldBorder(world, new BlockPos(-10000,-10000,-10000), new BlockPos(10000,10000,10000));
+            CustomWorldBorderMod.getCustomWorldBorderManager(world).setCustomWorldBorder(world, new BlockPos(-10000, -10000, -10000), new BlockPos(10000, 10000, 10000));
 
         ChestTrackerMod.reset(world.getServer());
         for (String pos : sizedConfig.chest_tracker_coords) {

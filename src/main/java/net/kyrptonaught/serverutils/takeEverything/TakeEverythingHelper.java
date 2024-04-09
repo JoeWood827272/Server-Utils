@@ -1,13 +1,11 @@
 package net.kyrptonaught.serverutils.takeEverything;
 
+import net.minecraft.block.SkullBlock;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.Equipment;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.PlayerScreenHandler;
@@ -64,6 +62,11 @@ public class TakeEverythingHelper {
 
         if (og.isOf(Items.ELYTRA))
             return false;
+
+        if (newStack.getItem() instanceof VerticallyAttachableBlockItem newBlock && og.getItem() instanceof VerticallyAttachableBlockItem ogBlock) {
+            if (newBlock.getBlock() instanceof SkullBlock && ogBlock.getBlock() instanceof SkullBlock)
+                return false;
+        }
 
         if (og.getItem() instanceof ArmorItem && newStack.getItem() instanceof ArmorItem)
             return ((ArmorItem) newStack.getItem()).getProtection() > ((ArmorItem) og.getItem()).getProtection();

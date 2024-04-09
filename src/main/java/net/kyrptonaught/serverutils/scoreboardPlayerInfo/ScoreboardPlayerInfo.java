@@ -107,7 +107,7 @@ public class ScoreboardPlayerInfo extends Module {
             setFabricClient(handler.player, true);
     }
 
-    public static void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server){
+    public static void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server) {
         queuedPlayerData.remove(((ServerCommonNetworkHandlerAccessor) handler).getConnection());
     }
 

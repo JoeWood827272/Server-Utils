@@ -17,7 +17,7 @@ import java.util.List;
 public class FormatToMC {
 
     public static Text parseMessage(Message discordMessage, MutableText prefix, boolean isAdmin) {
-        if(isAdmin && discordMessage.getContentRaw().startsWith("$PARSE="))
+        if (isAdmin && discordMessage.getContentRaw().startsWith("$PARSE="))
             return parseAdminTextJson(discordMessage, prefix);
 
         HashMap<String, String> replacementURLs = new HashMap<>();

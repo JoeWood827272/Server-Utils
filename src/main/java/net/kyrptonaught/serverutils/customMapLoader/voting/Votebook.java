@@ -11,7 +11,10 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class Votebook {
@@ -220,10 +223,10 @@ public class Votebook {
             mapText.add(Text.empty());
 
             MutableText backBtn = backButton("mapPack_" + config.addon_pack);
-            if(config.addon_pack.equals("base_base"))
+            if (config.addon_pack.equals("base_base"))
                 backBtn = backButton("baseMaps");
 
-            mapText.add(voteButton(config.addon_id).append(" ").append(backBtn.append(" ").append(withOpenCmd(bracketTrans("lem.generic.more"), "map_player_rp_settings", "index,0,"+ config.addon_id.toString()))));
+            mapText.add(voteButton(config.addon_id).append(" ").append(backBtn.append(" ").append(withOpenCmd(bracketTrans("lem.generic.more"), "map_player_rp_settings", "index,0," + config.addon_id.toString()))));
 
             bookLibrary.put("map_" + config.addon_id, createBasicPage().addPage(mapText.toArray(Text[]::new)));
         }
@@ -284,7 +287,7 @@ public class Votebook {
         Text requiredHeader = withHover(dashTrans("lem.mapdecider.menu.requiredpacks"), trimName(addon.getNameText(), 20));
         if (addon.required_packs == null || addon.required_packs.packs.isEmpty()) {
             splitAcrossPages(bookPage, 1, List.of(Text.translatable("gui.none")), requiredHeader, "map_" + addon.addon_id, true, (rpOption, index, pageText) -> {
-                pageText.add(colored(rpOption,Formatting.DARK_GRAY));
+                pageText.add(colored(rpOption, Formatting.DARK_GRAY));
             });
         } else {
             splitAcrossPages(bookPage, 10, addon.required_packs.packs, requiredHeader, "map_" + addon.addon_id, true, (rpOption, index, pageText) -> {
@@ -296,7 +299,7 @@ public class Votebook {
         Text optionalHeader = withHover(dashTrans("lem.mapdecider.menu.optionalpacks"), trimName(addon.getNameText(), 20));
         if (addon.optional_packs == null || addon.optional_packs.packs.isEmpty()) {
             splitAcrossPages(bookPage, 1, List.of(Text.translatable("gui.none")), optionalHeader, "map_" + addon.addon_id, false, (rpOption, index, pageText) -> {
-                pageText.add(colored(rpOption,Formatting.DARK_GRAY));
+                pageText.add(colored(rpOption, Formatting.DARK_GRAY));
             });
         } else {
             splitAcrossPages(bookPage, 8, addon.optional_packs.packs, optionalHeader, "map_" + addon.addon_id, false, (rpOption, index, pageText) -> {

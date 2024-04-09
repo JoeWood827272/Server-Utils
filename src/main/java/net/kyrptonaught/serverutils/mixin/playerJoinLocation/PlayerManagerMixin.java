@@ -20,7 +20,8 @@ public class PlayerManagerMixin {
 
     @Redirect(method = "onPlayerConnect", at = @At(target = "Lnet/minecraft/world/dimension/DimensionType;worldFromDimensionNbt(Lcom/mojang/serialization/Dynamic;)Lcom/mojang/serialization/DataResult;", value = "INVOKE"))
     public DataResult<RegistryKey<World>> forceSpawnLocation(Dynamic<?> nbt, ClientConnection connection, ServerPlayerEntity player) {
-        if (PlayerJoinLocationMod.ENABLED) {
+        if (PlayerJoinLocationMod.ENABLED && !PlayerJoinLocationMod.isExcludedPlayer(player)) {
+            PlayerJoinLocationMod.removePlayer(player);
             PlayerJoinLocationConfig config = ServerUtilsMod.playerJoinLocationMod.getConfig();
             player.setPos(config.posX, config.posY, config.posZ);
             return DataResult.success(World.OVERWORLD);

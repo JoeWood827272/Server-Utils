@@ -17,10 +17,16 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.storage.ChunkStreamVersion;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class Converter {
@@ -344,7 +350,7 @@ public class Converter {
                 raf.seek(4096 + i * 4);
                 int timestamp = raf.readInt();
 
-                raf.seek(4096 * offset + 4); //+4: skip data size
+                raf.seek(4096L * offset + 4); //+4: skip data size
 
                 byte compressionTypeByte = raf.readByte(); //0 - none, 1 - GZIP, 2 deflate - assuming deflate
                 chunks.add(NbtIo.readCompound(new DataInputStream(ChunkStreamVersion.DEFLATE.wrap(new FileInputStream(raf.getFD())))));

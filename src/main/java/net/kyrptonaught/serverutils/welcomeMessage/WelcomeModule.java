@@ -21,7 +21,6 @@ public class WelcomeModule extends ModuleWConfig<WelcomeMessageConfig> {
         playerMsgSent.add(player.getUuid());
     }
 
-
     @Override
     public WelcomeMessageConfig createDefaultConfig() {
         return new WelcomeMessageConfig();
