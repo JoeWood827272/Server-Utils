@@ -280,7 +280,9 @@ public class CustomMapLoaderCommands {
 
         cmd.then(CommandManager.literal("reload")
                 .executes(context -> {
-                    CustomMapLoaderMod.reloadAddonFiles(context.getSource().getServer());
+                    context.getSource().getServer().execute(() -> {
+                        CustomMapLoaderMod.reloadAddonFiles(context.getSource().getServer());
+                    });
                     return 1;
                 }));
 

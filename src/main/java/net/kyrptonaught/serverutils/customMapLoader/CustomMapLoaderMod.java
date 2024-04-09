@@ -3,7 +3,9 @@ package net.kyrptonaught.serverutils.customMapLoader;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.kyrptonaught.serverutils.Module;
+import net.kyrptonaught.serverutils.CMDHelper;
+import net.kyrptonaught.serverutils.ModuleWConfig;
+import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.chestTracker.ChestTrackerMod;
 import net.kyrptonaught.serverutils.customMapLoader.addons.BaseMapAddon;
 import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
@@ -19,11 +21,12 @@ import net.kyrptonaught.serverutils.discordBridge.MessageSender;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.network.packet.s2c.config.DynamicRegistriesS2CPacket;
+import net.minecraft.registry.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
+import net.minecraft.server.network.ServerConfigurationNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -37,7 +40,7 @@ import net.minecraft.world.dimension.DimensionType;
 import java.nio.file.Path;
 import java.util.*;
 
-public class CustomMapLoaderMod extends Module {
+public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
 
     public static final HashMap<Identifier, BattleMapAddon> BATTLE_MAPS = new HashMap<>();
     public static final HashMap<Identifier, LobbyMapAddon> LOBBY_MAPS = new HashMap<>();
@@ -56,17 +59,37 @@ public class CustomMapLoaderMod extends Module {
         CustomMapLoaderCommands.registerCommands(dispatcher);
     }
 
-    public static void reloadAddonFiles(MinecraftServer server){
-        Registry<DimensionType> dimensionTypeRegistry = server.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE);
-        ((RegistryUnfreezer) dimensionTypeRegistry).unfreeze();
+    @Override
+    public CustomMapLoaderConfig createDefaultConfig() {
+        return new CustomMapLoaderConfig();
+    }
 
+    public static void reloadAddonFiles(MinecraftServer server) {
         BATTLE_MAPS.clear();
         LOBBY_MAPS.clear();
 
+        Registry<DimensionType> dimensionTypeRegistry = server.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE);
+        ((RegistryUnfreezer) dimensionTypeRegistry).unfreeze();
         IO.discoverAddons(server);
+        dimensionTypeRegistry.freeze();
+
         Votebook.generateBookLibrary(getAllBattleMaps());
 
-        dimensionTypeRegistry.freeze();
+
+        if (server.getPlayerManager() != null) {
+            Collection<CommandFunction<ServerCommandSource>> RECONFIG_FUNCTION = CMDHelper.getFunctions(server, ServerUtilsMod.CustomMapLoaderModule.getConfig().reconfigFunction);
+            List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();
+            for (int i = players.size() - 1; i >= 0; i--) {
+                CMDHelper.executeAs(players.get(i), RECONFIG_FUNCTION);
+                players.get(i).networkHandler.reconfigure();
+            }
+        }
+    }
+
+    public static void onEnterReconfig(ServerConfigurationNetworkHandler handler, ServerPlayerEntity player) {
+        CombinedDynamicRegistries<ServerDynamicRegistryType> combinedDynamicRegistries = player.getServer().getCombinedDynamicRegistries();
+        handler.sendPacket(new DynamicRegistriesS2CPacket(new DynamicRegistryManager.ImmutableImpl(SerializableRegistries.streamDynamicEntries(combinedDynamicRegistries)).toImmutable()));
+        handler.endConfiguration();
     }
 
     public static List<BattleMapAddon> getAllBattleMaps(){

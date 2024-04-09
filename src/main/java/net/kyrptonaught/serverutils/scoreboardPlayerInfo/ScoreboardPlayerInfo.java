@@ -46,6 +46,7 @@ public class ScoreboardPlayerInfo extends Module {
         ServerLifecycleEvents.SERVER_STARTED.register(ScoreboardPlayerInfo::registerScoreboardOBJs);
         ServerPlayConnectionEvents.INIT.register(ScoreboardPlayerInfo::onPlayerPreConnect);
         ServerPlayConnectionEvents.JOIN.register(ScoreboardPlayerInfo::onPlayerConnect);
+        ServerPlayConnectionEvents.DISCONNECT.register(ScoreboardPlayerInfo::onPlayerDisconnect);
     }
 
     @Override
@@ -91,7 +92,7 @@ public class ScoreboardPlayerInfo extends Module {
 
     public static void onPlayerConnect(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         if (queuedPlayerData.containsKey(((ServerCommonNetworkHandlerAccessor) handler).getConnection())) {
-            QueuedPlayerData playerData = queuedPlayerData.remove(((ServerCommonNetworkHandlerAccessor) handler).getConnection());
+            QueuedPlayerData playerData = queuedPlayerData.get(((ServerCommonNetworkHandlerAccessor) handler).getConnection());
             protocolObjective.setScore(handler.player, playerData.protocolVersion);
             setHasLEMClient(handler.player, playerData.hasLCH);
             setHasOptifine(handler.player, playerData.hasOptishit);
@@ -104,6 +105,10 @@ public class ScoreboardPlayerInfo extends Module {
 
         if (ServerPlayNetworking.canSend(handler, new Identifier("fabric:registry/sync")))
             setFabricClient(handler.player, true);
+    }
+
+    public static void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server){
+        queuedPlayerData.remove(((ServerCommonNetworkHandlerAccessor) handler).getConnection());
     }
 
     public static void checkBrand(ServerPlayerEntity player, String brand) {

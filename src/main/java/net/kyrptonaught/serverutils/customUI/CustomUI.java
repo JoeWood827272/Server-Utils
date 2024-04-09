@@ -24,7 +24,6 @@ import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.function.CommandFunctionManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
@@ -177,8 +176,7 @@ public class CustomUI extends Module {
         if (action.startsWith("command/")) {
             CMDHelper.executeAs(player, cmd);
         } else if (action.startsWith("function/")) {
-            CommandFunctionManager functionManager = player.getServer().getCommandFunctionManager();
-            functionManager.getFunction(new Identifier(cmd)).ifPresent(commandFunction -> functionManager.execute(commandFunction, player.getServer().getCommandSource().withLevel(2).withSilent()));
+            CMDHelper.executeFunctionsAs(player, cmd);
         } else if (action.startsWith("openUI/")) {
             if (slot.replaceOpenScreen()) replaceScreen(cmd, player);
             else showScreenFor(cmd, player);

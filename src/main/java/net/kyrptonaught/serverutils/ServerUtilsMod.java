@@ -97,7 +97,7 @@ public class ServerUtilsMod implements ModInitializer {
     public static Module floodgateCompatModule = registerModule("floodgatecompat", new FloodgateCompatMod());
     public static PlayerJoinLocationMod playerJoinLocationMod = (PlayerJoinLocationMod) registerModule("playerjoinlocation", new PlayerJoinLocationMod());
     public static Module knockbackModule = registerModule("knockback", new KnockbackMod());
-    public static Module customMapLoaderModule = registerModule("custommaploader", new CustomMapLoaderMod());
+    public static CustomMapLoaderMod CustomMapLoaderModule = (CustomMapLoaderMod) registerModule("custommaploader", new CustomMapLoaderMod());
     public static Module utilModule = registerModule("util", new UtilCommandsMod());
     public static Module smallInvModule = registerModule("smallinv", new SmallInvMod());
     public static Module advancementMenu = registerModule("advancementmenu", new AdvancementMenuMod());

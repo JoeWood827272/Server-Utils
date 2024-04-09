@@ -10,7 +10,6 @@ import net.kyrptonaught.serverutils.userConfig.UserConfigStorage;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.network.packet.s2c.common.ResourcePackRemoveS2CPacket;
 import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
@@ -79,23 +78,15 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
 
         if (allPacksLoaded(player)) {
             if (RP_LOADED_FUNCTIONS == null)
-                RP_LOADED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerCompleteFunction);
+                RP_LOADED_FUNCTIONS = CMDHelper.getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerCompleteFunction);
             if (RP_FAILED_FUNCTIONS == null)
-                RP_FAILED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerFailedFunction);
+                RP_FAILED_FUNCTIONS = CMDHelper.getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerFailedFunction);
 
             if (didPackFail(player))
                 CMDHelper.executeAs(player, RP_FAILED_FUNCTIONS);
             else
                 CMDHelper.executeAs(player, RP_LOADED_FUNCTIONS);
         }
-    }
-
-    private static Collection<CommandFunction<ServerCommandSource>> getFunctions(MinecraftServer server, String id) {
-        if (id.startsWith("#")) {
-            return server.getCommandFunctionManager().getTag(new Identifier(id.replaceAll("#", "")));
-        }
-
-        return Collections.singleton(server.getCommandFunctionManager().getFunction(new Identifier(id)).get());
     }
 
     private static void addPackStatus(ServerPlayerEntity player, UUID packname, boolean temp) {
@@ -146,7 +137,7 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
 
     private void execute(ResourcePackConfig.RPOption rpOption, ServerPlayerEntity player) {
         if (RP_STARTED_FUNCTIONS == null)
-            RP_STARTED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerStartFunction);
+            RP_STARTED_FUNCTIONS = CMDHelper.getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerStartFunction);
 
         CMDHelper.executeAs(player, RP_STARTED_FUNCTIONS);
 
@@ -168,7 +159,7 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
         if (!hasNewPacks(packList, player)) return;
 
         if (RP_STARTED_FUNCTIONS == null)
-            RP_STARTED_FUNCTIONS = getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerStartFunction);
+            RP_STARTED_FUNCTIONS = CMDHelper.getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerStartFunction);
 
         CMDHelper.executeAs(player, RP_STARTED_FUNCTIONS);
 
