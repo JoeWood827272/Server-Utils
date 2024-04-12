@@ -52,40 +52,19 @@ public class CustomUI extends Module {
             }
         };
         gui.setTitle(getAsText(config.title));
+
+
+        int count = 0;
+        for (ScreenConfig.SlotDefinition slot : config.dynamicSlotList) {
+            ScreenConfig.SlotDefinition slotDefinition = getSlotDefinition(slot, player);
+            if (slotDefinition.hidden()) continue;
+            setClickHandlers(gui, count++, player, slotDefinition);
+        }
+
         for (String slot : config.slots.keySet()) {
             ScreenConfig.SlotDefinition slotDefinition = getSlotDefinition(config.slots.get(slot), player);
-
-            ItemStack itemStack = Registries.ITEM.get(new Identifier(slotDefinition.itemID)).getDefaultStack();
-
-            if (slotDefinition.itemNBT != null)
-                try {
-                    NbtCompound compound = StringNbtReader.parse(slotDefinition.itemNBT);
-                    itemStack.setNbt(compound);
-                } catch (CommandSyntaxException e) {
-                    e.printStackTrace();
-                }
-
-            if (slotDefinition.customModelData != null)
-                try {
-                    String value = ServerTranslator.translate(player, slotDefinition.customModelData);
-                    int intValue = Integer.parseInt(value);
-                    itemStack.getOrCreateNbt().putInt("CustomModelData", intValue);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-
-            if (slotDefinition.displayName != null)
-                itemStack.setCustomName(getAsText(slotDefinition.displayName));
-            for (Integer slotNum : expandSlotString(slot)) {
-                gui.setSlot(slotNum, GuiElementBuilder.from(itemStack)
-                        .setCallback((index, type, action) -> {
-                            if (type.isLeft)
-                                handleClick(player, slotDefinition.leftClickAction, slotDefinition.leftClickSound, slotDefinition);
-                            if (type.isRight)
-                                handleClick(player, slotDefinition.rightClickAction, slotDefinition.rightClickSound, slotDefinition);
-                        })
-                );
-            }
+            if (slotDefinition.hidden()) continue;
+            for (Integer slotNum : expandSlotString(slot)) setClickHandlers(gui, slotNum, player, slotDefinition);
         }
 
         if (!screenHistory.containsKey(player.getUuid()))
@@ -121,6 +100,16 @@ public class CustomUI extends Module {
         showScreenFor(screenID, player);
     }
 
+    private static void setClickHandlers(SimpleGui gui, int slotNum, ServerPlayerEntity player, ScreenConfig.SlotDefinition slotDefinition) {
+        gui.setSlot(slotNum, GuiElementBuilder.from(slotDefinition.generatedStack)
+                .setCallback((index, type, action) -> {
+                    if (type.isLeft)
+                        handleClick(player, slotDefinition.leftClickAction, slotDefinition.leftClickSound, slotDefinition);
+                    if (type.isRight)
+                        handleClick(player, slotDefinition.rightClickAction, slotDefinition.rightClickSound, slotDefinition);
+                })
+        );
+    }
 
     private static ScreenConfig.SlotDefinition getSlotDefinition(ScreenConfig.SlotDefinition slotDefinition, ServerPlayerEntity player) {
         copyFromPreset(slotDefinition);
@@ -139,9 +128,31 @@ public class CustomUI extends Module {
                 value.dynamicItem = ScreenConfig.SlotDefinition.EMPTY_ITEM;
                 copyFromPreset(value);
                 value.copyFrom(slotDefinition);
-                return value;
+                slotDefinition = value;
             }
         }
+
+        slotDefinition.generatedStack = Registries.ITEM.get(new Identifier(slotDefinition.itemID)).getDefaultStack();
+
+        if (slotDefinition.itemNBT != null)
+            try {
+                NbtCompound compound = StringNbtReader.parse(slotDefinition.itemNBT);
+                slotDefinition.generatedStack.setNbt(compound);
+            } catch (CommandSyntaxException e) {
+                e.printStackTrace();
+            }
+
+        if (slotDefinition.customModelData != null)
+            try {
+                String value = ServerTranslator.translate(player, slotDefinition.customModelData);
+                int intValue = Integer.parseInt(value);
+                slotDefinition.generatedStack.getOrCreateNbt().putInt("CustomModelData", intValue);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+
+        if (slotDefinition.displayName != null)
+            slotDefinition.generatedStack.setCustomName(getAsText(slotDefinition.displayName));
 
         return slotDefinition;
     }

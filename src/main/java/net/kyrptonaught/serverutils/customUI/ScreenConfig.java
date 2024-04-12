@@ -1,8 +1,11 @@
 package net.kyrptonaught.serverutils.customUI;
 
 import net.kyrptonaught.serverutils.AbstractConfigFile;
+import net.minecraft.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ScreenConfig extends AbstractConfigFile {
     public String title;
@@ -16,6 +19,8 @@ public class ScreenConfig extends AbstractConfigFile {
 
     public HashMap<String, SlotDefinition> slots = new HashMap<>();
 
+    public List<SlotDefinition> dynamicSlotList = new ArrayList<>();
+
     public static class SlotDefinition {
         public String itemID;
         public String itemNBT;
@@ -26,6 +31,8 @@ public class ScreenConfig extends AbstractConfigFile {
         public String rightClickSound;
         public String presetID;
 
+        public Boolean hidden;
+
         public Boolean replaceOpenScreen;
         public String customModelData;
 
@@ -33,12 +40,18 @@ public class ScreenConfig extends AbstractConfigFile {
 
         public DynamicItem dynamicItem;
 
+        public transient ItemStack generatedStack;
+
         public boolean replaceOpenScreen() {
             return replaceOpenScreen != null && replaceOpenScreen;
         }
 
         public boolean refreshOnInteract() {
             return refreshOnInteract != null && refreshOnInteract;
+        }
+
+        public boolean hidden(){
+            return hidden != null && hidden;
         }
 
         public boolean isFieldBlank(String field) {
@@ -85,6 +98,9 @@ public class ScreenConfig extends AbstractConfigFile {
 
             if (refreshOnInteract == null)
                 refreshOnInteract = other.refreshOnInteract;
+
+            if (hidden == null)
+                hidden = other.hidden;
 
             return this;
         }
