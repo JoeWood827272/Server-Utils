@@ -2,6 +2,7 @@ package net.kyrptonaught.serverutils.scoreboardsuffix;
 
 import com.google.common.collect.Sets;
 import com.google.gson.*;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
@@ -54,7 +55,7 @@ public class SuffixFormat {
         public Suffix(String suffix) {
             this.suffix = suffix;
             try {
-                displayText = Objects.requireNonNullElseGet(Text.Serialization.fromJson(suffix), () -> Text.literal(suffix));
+                displayText = Objects.requireNonNullElseGet(Text.Serialization.fromJson(suffix, DynamicRegistryManager.EMPTY), () -> Text.literal(suffix));
             } catch (JsonParseException var4) {
                 //System.out.println("\"" + suffix + "\" created error: " + var4);
                 displayText = Text.literal(suffix);

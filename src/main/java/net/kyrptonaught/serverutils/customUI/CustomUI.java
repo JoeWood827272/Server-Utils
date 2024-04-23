@@ -10,10 +10,13 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.kyrptonaught.serverutils.CMDHelper;
 import net.kyrptonaught.serverutils.Module;
 import net.kyrptonaught.serverutils.serverTranslator.ServerTranslator;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.ResourceType;
@@ -136,7 +139,7 @@ public class CustomUI extends Module {
         if (slotDefinition.itemNBT != null)
             try {
                 NbtCompound compound = StringNbtReader.parse(slotDefinition.itemNBT);
-                slotDefinition.generatedStack.setNbt(compound);
+                //slotDefinition.generatedStack.setNbt(compound);
             } catch (CommandSyntaxException e) {
                 e.printStackTrace();
             }
@@ -145,13 +148,14 @@ public class CustomUI extends Module {
             try {
                 String value = ServerTranslator.translate(player, slotDefinition.customModelData);
                 int intValue = Integer.parseInt(value);
-                slotDefinition.generatedStack.getOrCreateNbt().putInt("CustomModelData", intValue);
+
+                slotDefinition.generatedStack.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(intValue));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
 
         if (slotDefinition.displayName != null)
-            slotDefinition.generatedStack.setCustomName(getAsText(slotDefinition.displayName));
+            slotDefinition.generatedStack.set(DataComponentTypes.CUSTOM_NAME, getAsText(slotDefinition.displayName));
 
         return slotDefinition;
     }
@@ -205,7 +209,7 @@ public class CustomUI extends Module {
 
     private static Text getAsText(String text) {
         try {
-            return Objects.requireNonNullElseGet(Text.Serialization.fromJson(text), () -> Text.literal(text));
+            return Objects.requireNonNullElseGet(Text.Serialization.fromJson(text, DynamicRegistryManager.EMPTY), () -> Text.literal(text));
         } catch (JsonParseException var4) {
             return Text.literal(text);
         }

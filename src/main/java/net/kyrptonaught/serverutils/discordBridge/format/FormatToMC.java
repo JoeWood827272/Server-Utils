@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.EmbedType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
@@ -60,7 +61,7 @@ public class FormatToMC {
 
         MutableText parsed = null;
         try {
-            parsed = Text.Serialization.fromLenientJson(discordMessage.getContentRaw().replaceFirst("\\$PARSE=", ""));
+            parsed = Text.Serialization.fromLenientJson(discordMessage.getContentRaw().replaceFirst("\\$PARSE=", ""), DynamicRegistryManager.EMPTY);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import net.kyrptonaught.serverutils.Module;
 import net.kyrptonaught.serverutils.takeEverything.TakeEverythingHelper;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.command.CommandManager;
@@ -32,8 +33,7 @@ public class SmallInvMod extends Module {
 
     public static boolean isSmallSlot(ItemStack stack) {
         return stack.isOf(Items.KNOWLEDGE_BOOK) &&
-                stack.hasNbt() &&
-                stack.getNbt().contains("SmallInv") &&
-                stack.getNbt().getInt("SmallInv") == 1;
+                stack.contains(DataComponentTypes.CUSTOM_DATA) &&
+                stack.get(DataComponentTypes.CUSTOM_DATA).contains("SmallInv");
     }
 }

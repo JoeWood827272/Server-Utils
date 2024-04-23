@@ -22,8 +22,10 @@ import net.kyrptonaught.serverutils.playerJoinLocation.PlayerJoinLocationMod;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
-import net.minecraft.network.packet.s2c.config.DynamicRegistriesS2CPacket;
-import net.minecraft.registry.*;
+import net.minecraft.registry.CombinedDynamicRegistries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.ServerDynamicRegistryType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
@@ -88,9 +90,10 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         }
     }
 
+    //todo fix
     public static void onEnterReconfig(ServerConfigurationNetworkHandler handler, ServerPlayerEntity player) {
         CombinedDynamicRegistries<ServerDynamicRegistryType> combinedDynamicRegistries = player.getServer().getCombinedDynamicRegistries();
-        handler.sendPacket(new DynamicRegistriesS2CPacket(new DynamicRegistryManager.ImmutableImpl(SerializableRegistries.streamDynamicEntries(combinedDynamicRegistries)).toImmutable()));
+        // handler.sendPacket(new DynamicRegistriesS2CPacket(new DynamicRegistryManager.ImmutableImpl(SerializableRegistries.streamDynamicEntries(combinedDynamicRegistries)).toImmutable()));
         handler.endConfiguration();
     }
 

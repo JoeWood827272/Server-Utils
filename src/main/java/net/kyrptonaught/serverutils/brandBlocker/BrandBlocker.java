@@ -2,6 +2,7 @@ package net.kyrptonaught.serverutils.brandBlocker;
 
 import net.kyrptonaught.serverutils.ModuleWConfig;
 import net.kyrptonaught.serverutils.ServerUtilsMod;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.Text;
 
 public class BrandBlocker extends ModuleWConfig<BrandBlockerConfig> {
@@ -20,7 +21,7 @@ public class BrandBlocker extends ModuleWConfig<BrandBlockerConfig> {
     private static Text getKickMsg(String msg, String kickMsg) {
         if (msg.equals("$KICKMSG$")) msg = kickMsg;
         try {
-            return Text.Serialization.fromJson(msg);
+            return Text.Serialization.fromJson(msg, DynamicRegistryManager.EMPTY);
         } catch (Exception ignored) {
             return Text.of(msg);
         }

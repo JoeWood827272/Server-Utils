@@ -1,6 +1,7 @@
 package net.kyrptonaught.serverutils.panoramaViewer;
 
 import com.google.gson.JsonParseException;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
@@ -33,7 +34,7 @@ public class Panorama {
 
     private MutableText parseToText(String text) {
         try {
-            return Objects.requireNonNullElseGet(Text.Serialization.fromJson(text), () -> Text.literal(text));
+            return Objects.requireNonNullElseGet(Text.Serialization.fromJson(text, DynamicRegistryManager.EMPTY), () -> Text.literal(text));
         } catch (JsonParseException var4) {
             return Text.literal(text);
         }

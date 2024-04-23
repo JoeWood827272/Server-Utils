@@ -15,6 +15,7 @@ import net.kyrptonaught.serverutils.ModuleWConfig;
 import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.discordBridge.bot.BridgeBot;
 import net.kyrptonaught.serverutils.discordBridge.linking.LinkingManager;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -44,8 +45,8 @@ public class DiscordBridgeMod extends ModuleWConfig<DiscordBridgeConfig> {
     }
 
     @Override
-    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
-        DiscordBridgeCommands.registerCommands(dispatcher);
+    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+        DiscordBridgeCommands.registerCommands(dispatcher, registryAccess);
     }
 
     public static String getUserHeadURL(ServerPlayerEntity player) {

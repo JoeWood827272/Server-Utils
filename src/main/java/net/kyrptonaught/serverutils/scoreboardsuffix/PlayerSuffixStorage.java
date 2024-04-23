@@ -3,6 +3,7 @@ package net.kyrptonaught.serverutils.scoreboardsuffix;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.world.PersistentState;
 
 import java.util.HashMap;
@@ -17,11 +18,12 @@ public class PlayerSuffixStorage extends PersistentState {
         super();
     }
 
-    public static PersistentState.Type<PlayerSuffixStorage> getPersistentStateType() {
-        return new PersistentState.Type<>(PlayerSuffixStorage::new, PlayerSuffixStorage::fromNbt, DataFixTypes.LEVEL);
+
+    public static Type<PlayerSuffixStorage> getPersistentStateType() {
+        return new Type<>(PlayerSuffixStorage::new, PlayerSuffixStorage::fromNbt, DataFixTypes.LEVEL);
     }
 
-    public static PlayerSuffixStorage fromNbt(NbtCompound tag) {
+    public static PlayerSuffixStorage fromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         PlayerSuffixStorage cman = new PlayerSuffixStorage();
         if (tag.contains("suffixformat"))
             cman.setSuffixFormatInput(tag.getString("suffixformat"));
@@ -39,17 +41,18 @@ public class PlayerSuffixStorage extends PersistentState {
         return cman;
     }
 
-    public NbtCompound writeNbt(NbtCompound tag) {
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         if (rawSuffixFormat != null)
-            tag.putString("suffixformat", rawSuffixFormat);
+            nbt.putString("suffixformat", rawSuffixFormat);
         NbtCompound playersNBT = new NbtCompound();
         playerFonts.forEach((playerName, playerFonts) -> {
             NbtCompound playerFontsNBT = new NbtCompound();
             playerFonts.forEach(playerFontsNBT::putString);
             playersNBT.put(playerName, playerFontsNBT);
         });
-        tag.put("playerFonts", playersNBT);
-        return tag;
+        nbt.put("playerFonts", playersNBT);
+        return nbt;
     }
 
     public void setSuffixFormatInput(String input) {

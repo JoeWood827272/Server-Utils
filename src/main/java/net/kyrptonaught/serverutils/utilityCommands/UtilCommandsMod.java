@@ -28,7 +28,7 @@ public class UtilCommandsMod extends Module {
     @Override
     public void onInitialize() {
         super.onInitialize();
-        EntityAttributes.GENERIC_MAX_HEALTH.setTracked(false);
+        EntityAttributes.GENERIC_MAX_HEALTH.value().setTracked(false);
     }
 
     @Override

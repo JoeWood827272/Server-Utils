@@ -120,7 +120,7 @@ public class PlayerLockdownMod extends Module {
                 player.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(0);
                 player.networkHandler.sendPacket(new EntityAttributesS2CPacket(player.getId(), Collections.singleton(player.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED))));
 
-                player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(player.getId(), new StatusEffectInstance(StatusEffects.JUMP_BOOST, -1, 250, false, false)));
+                player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(player.getId(), new StatusEffectInstance(StatusEffects.JUMP_BOOST, -1, 250, false, false), false));
 
                 player.networkHandler.sendPacket(new HealthUpdateS2CPacket(player.getHealth(), 1, player.getHungerManager().getSaturationLevel()));
 
@@ -136,7 +136,7 @@ public class PlayerLockdownMod extends Module {
 
                 StatusEffectInstance effect = player.getStatusEffect(StatusEffects.JUMP_BOOST);
                 if (effect != null)
-                    player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(player.getId(), effect));
+                    player.networkHandler.sendPacket(new EntityStatusEffectS2CPacket(player.getId(), effect, false));
                 else
                     player.networkHandler.sendPacket(new RemoveEntityStatusEffectS2CPacket(player.getId(), StatusEffects.JUMP_BOOST));
 

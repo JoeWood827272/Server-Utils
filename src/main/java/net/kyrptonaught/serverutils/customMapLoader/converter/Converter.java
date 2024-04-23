@@ -15,7 +15,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.storage.ChunkStreamVersion;
+import net.minecraft.world.storage.ChunkCompressionFormat;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -353,7 +353,7 @@ public class Converter {
                 raf.seek(4096L * offset + 4); //+4: skip data size
 
                 byte compressionTypeByte = raf.readByte(); //0 - none, 1 - GZIP, 2 deflate - assuming deflate
-                chunks.add(NbtIo.readCompound(new DataInputStream(ChunkStreamVersion.DEFLATE.wrap(new FileInputStream(raf.getFD())))));
+                chunks.add(NbtIo.readCompound(new DataInputStream(ChunkCompressionFormat.DEFLATE.wrap(new FileInputStream(raf.getFD())))));
             }
             return chunks;
         }

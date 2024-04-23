@@ -8,7 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.RegistryEntryArgumentType;
+import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.command.argument.ScoreboardObjectiveArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -48,11 +48,11 @@ public class HealthCommand {
         dispatcher.register(healthCMD.then(CommandManager.argument("entity", EntityArgumentType.entities())
                 .then(CommandManager.literal("remove")
                         .then(CommandManager.argument("amount", FloatArgumentType.floatArg())
-                                .then(CommandManager.argument("damageType", RegistryEntryArgumentType.registryEntry(registryAccess, RegistryKeys.DAMAGE_TYPE))
-                                        .executes((context) -> execute(context, HealthCMDMod.ModType.SUB, new DamageSource(RegistryEntryArgumentType.getRegistryEntry(context, "damageType", RegistryKeys.DAMAGE_TYPE))))))
+                                .then(CommandManager.argument("damageType", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.DAMAGE_TYPE))
+                                        .executes((context) -> execute(context, HealthCMDMod.ModType.SUB, new DamageSource(RegistryEntryReferenceArgumentType.getRegistryEntry(context, "damageType", RegistryKeys.DAMAGE_TYPE))))))
                         .then(CommandManager.literal("scoreboard").then(CommandManager.argument("obj", ScoreboardObjectiveArgumentType.scoreboardObjective())
-                                .then(CommandManager.argument("damageType", RegistryEntryArgumentType.registryEntry(registryAccess, RegistryKeys.DAMAGE_TYPE))
-                                        .executes(context -> getScoreboard(context, HealthCMDMod.ModType.SUB, new DamageSource(RegistryEntryArgumentType.getRegistryEntry(context, "damageType", RegistryKeys.DAMAGE_TYPE)))))))
+                                .then(CommandManager.argument("damageType", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.DAMAGE_TYPE))
+                                        .executes(context -> getScoreboard(context, HealthCMDMod.ModType.SUB, new DamageSource(RegistryEntryReferenceArgumentType.getRegistryEntry(context, "damageType", RegistryKeys.DAMAGE_TYPE)))))))
                 )));
 
         dispatcher.register(healthCMD.then(CommandManager.argument("entity", EntityArgumentType.entities())

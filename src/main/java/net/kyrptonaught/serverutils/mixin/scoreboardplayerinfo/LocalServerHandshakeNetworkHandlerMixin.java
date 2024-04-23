@@ -2,7 +2,7 @@ package net.kyrptonaught.serverutils.mixin.scoreboardplayerinfo;
 
 import net.kyrptonaught.serverutils.scoreboardPlayerInfo.ScoreboardPlayerInfo;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkState;
+import net.minecraft.network.packet.c2s.handshake.ConnectionIntent;
 import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.LocalServerHandshakeNetworkHandler;
@@ -26,7 +26,7 @@ public abstract class LocalServerHandshakeNetworkHandlerMixin {
     @Inject(method = "onHandshake", at = @At("HEAD"))
     public void getProtocolVersion(HandshakeC2SPacket packet, CallbackInfo ci) {
         server.execute(() -> {
-            if (packet.getNewNetworkState() == NetworkState.LOGIN) {
+            if (packet.intendedState() == ConnectionIntent.LOGIN) {
                 int protocol = packet.protocolVersion();
                 ScoreboardPlayerInfo.addClientConnectionProtocol(connection, protocol);
             }

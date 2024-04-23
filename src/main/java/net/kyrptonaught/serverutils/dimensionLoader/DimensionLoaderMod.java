@@ -93,11 +93,13 @@ public class DimensionLoaderMod extends Module {
         return ogKey;
     }
 
-    public static RegistryKey<DimensionType> tryGetDimKey(ServerWorld world) {
+    public static RegistryEntry<DimensionType> tryGetDimKey(ServerWorld world) {
         RegistryKey<World> ogKey = world.getRegistryKey();
-        if (loadedWorlds.containsKey(ogKey.getValue()))
-            return RegistryKey.of(RegistryKeys.DIMENSION_TYPE, loadedWorlds.get(ogKey.getValue()).copyFromID);
-        return world.getDimensionKey();
+        if (loadedWorlds.containsKey(ogKey.getValue())) {
+            Registry<DimensionType> registry = world.getRegistryManager().get(RegistryKeys.DIMENSION_TYPE);
+            return registry.getEntry(registry.getKey(registry.get(loadedWorlds.get(ogKey.getValue()).copyFromID)).get()).get();
+        }
+        return world.getDimensionEntry();
     }
 
     public static void serverTickWorldAdd(MinecraftServer server) {

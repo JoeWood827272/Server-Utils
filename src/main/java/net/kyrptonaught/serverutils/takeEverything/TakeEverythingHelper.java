@@ -124,10 +124,10 @@ public class TakeEverythingHelper {
 
     public static void playSound(ItemStack stack, ServerPlayerEntity player) {
         Equipment equipment = Equipment.fromStack(stack);
-        SoundEvent soundEvent = equipment.getEquipSound();
+        SoundEvent soundEvent = equipment.getEquipSound().value();
         if (stack.isEmpty() || soundEvent == null) {
             return;
         }
-        player.playSound(soundEvent, player.getSoundCategory(), 1, 1);
+        player.playSoundToPlayer(soundEvent, player.getSoundCategory(), 1, 1);
     }
 }

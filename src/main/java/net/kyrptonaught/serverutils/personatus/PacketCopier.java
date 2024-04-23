@@ -2,10 +2,11 @@ package net.kyrptonaught.serverutils.personatus;
 
 import io.netty.buffer.Unpooled;
 import net.kyrptonaught.serverutils.mixin.personatus.PlayerListS2CPacketAccessor;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.network.packet.s2c.play.TeamS2CPacket;
+import net.minecraft.registry.DynamicRegistryManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +22,9 @@ public class PacketCopier {
 
 
     public static TeamS2CPacket copyTeamPacket(TeamS2CPacket oldTeamPacket) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        oldTeamPacket.write(buf);
-        return new TeamS2CPacket(buf);
+        RegistryByteBuf buf = new RegistryByteBuf(Unpooled.buffer(), DynamicRegistryManager.EMPTY);
+        TeamS2CPacket.CODEC.encode(buf, oldTeamPacket);
+        return TeamS2CPacket.CODEC.decode(buf);
     }
 
     public static ChatMessageS2CPacket copyChatPacket(ChatMessageS2CPacket oldChatPacket, UUID newUUID) {

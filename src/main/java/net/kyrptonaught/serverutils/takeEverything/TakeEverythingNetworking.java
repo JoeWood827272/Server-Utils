@@ -1,16 +1,16 @@
 package net.kyrptonaught.serverutils.takeEverything;
 
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.kyrptonaught.serverutils.ServerUtilsMod;
-import net.minecraft.util.Identifier;
 
 public class TakeEverythingNetworking {
-    private static final Identifier TAKE_EVERYTHING_PACKET = new Identifier(ServerUtilsMod.TakeEverythingModule.getMOD_ID(), "take_everything_packet");
 
     public static void registerReceivePacket() {
-        ServerPlayNetworking.registerGlobalReceiver(TAKE_EVERYTHING_PACKET, (server, player, serverPlayNetworkHandler, packetByteBuf, packetSender) -> {
-            server.execute(() -> {
-                TakeEverythingHelper.takeEverything(player);
+        PayloadTypeRegistry.playS2C().register(TakeEverythingPacket.PACKET_ID, TakeEverythingPacket.codec);
+
+        ServerPlayNetworking.registerGlobalReceiver(TakeEverythingPacket.PACKET_ID, (payload, context) -> {
+            context.player().getServer().execute(() -> {
+                TakeEverythingHelper.takeEverything(context.player());
             });
         });
     }

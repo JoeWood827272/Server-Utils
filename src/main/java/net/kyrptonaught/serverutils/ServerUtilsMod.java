@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.kyrptonaught.serverutils.SpectateSqueaker.SpectateSqueakerMod;
 import net.kyrptonaught.serverutils.advancementMenu.AdvancementMenuMod;
 import net.kyrptonaught.serverutils.armorHudToggle.ArmorHudMod;
@@ -147,8 +147,7 @@ public class ServerUtilsMod implements ModInitializer {
 
     public static void registerPresence() {
         //used by the client to detect if connected on a server with this mod installed
-        ServerPlayNetworking.registerGlobalReceiver(PRESENCE_PACKET, (server, player, handler, buf, responseSender) -> {
-        });
+        PayloadTypeRegistry.playS2C().register(ServerUtilsPresencePacket.PACKET_ID, ServerUtilsPresencePacket.codec);
     }
 
     public static Gson getGson() {

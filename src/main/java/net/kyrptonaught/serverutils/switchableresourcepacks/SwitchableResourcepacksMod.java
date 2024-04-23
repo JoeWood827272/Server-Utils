@@ -152,7 +152,7 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
             return;
 
         addPackStatus(player, packUUID, false);
-        player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, rpOption.url, rpOption.hash, true, Text.literal(getConfig().message)));
+        player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, rpOption.url, rpOption.hash, true, Optional.of(Text.literal(getConfig().message))));
     }
 
     public static void addPacks(List<ResourcePackConfig.RPOption> packList, ServerPlayerEntity player) {
@@ -174,7 +174,7 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
         for (ResourcePackConfig.RPOption rpOption : packList) {
             UUID packUUID = UUID.nameUUIDFromBytes(rpOption.packID.toString().getBytes(StandardCharsets.UTF_8));
             addPackStatus(player, packUUID, true);
-            player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, rpOption.url, rpOption.hash, true, Text.literal(ServerUtilsMod.SwitchableResourcepacksModule.getConfig().message)));
+            player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, rpOption.url, rpOption.hash, true, Optional.of(Text.literal(ServerUtilsMod.SwitchableResourcepacksModule.getConfig().message))));
         }
     }
 

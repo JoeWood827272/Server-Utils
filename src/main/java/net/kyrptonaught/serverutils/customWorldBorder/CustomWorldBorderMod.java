@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.kyrptonaught.serverutils.Module;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.command.ServerCommandSource;
@@ -38,6 +39,7 @@ public class CustomWorldBorderMod extends Module {
             getCustomWorldBorderManager(origin).playerBorders.remove(player.getUuid());
             getCustomWorldBorderManager(destination).playerBorders.remove(player.getUuid());
         });
+        PayloadTypeRegistry.playS2C().register(CustomWorldBorderPacket.PACKET_ID, CustomWorldBorderPacket.codec);
     }
 
     public static void onDimensionUnload(ServerWorld world) {
