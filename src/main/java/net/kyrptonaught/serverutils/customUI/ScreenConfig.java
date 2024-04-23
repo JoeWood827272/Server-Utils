@@ -50,7 +50,7 @@ public class ScreenConfig extends AbstractConfigFile {
             return refreshOnInteract != null && refreshOnInteract;
         }
 
-        public boolean hidden(){
+        public boolean hidden() {
             return hidden != null && hidden;
         }
 

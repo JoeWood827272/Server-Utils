@@ -10,7 +10,6 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.kyrptonaught.serverutils.CMDHelper;
 import net.kyrptonaught.serverutils.Module;
 import net.kyrptonaught.serverutils.serverTranslator.ServerTranslator;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
