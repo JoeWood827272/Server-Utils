@@ -2,7 +2,7 @@
   "required": true,
   "package": "net.kyrptonaught.serverutils.mixin",
   "minVersion": "0.8",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "advancementMenu.ServerPlayHandlerMixin",
     "bigstructures.StructureBlockEntityMixin",

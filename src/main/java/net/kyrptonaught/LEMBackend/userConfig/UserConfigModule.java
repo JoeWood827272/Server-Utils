@@ -13,7 +13,8 @@ public class UserConfigModule extends Module {
 
     public JsonObject loadPlayer(String player) {
         JsonObject obj = readFileJson(LEMBackend.gson, player + ".json", JsonObject.class);
-        if (obj == null) obj = new JsonObject();
+        if (obj == null)
+            obj = new JsonObject();
 
         return obj;
     }

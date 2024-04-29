@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "serverutils",
-  "version": "1.0.9b6-1.20.5",
+  "version": "1.0.9b6-1.20.6",
   "name": "Server Utils",
   "description": "A group of utilities for servers",
   "authors": [
@@ -29,6 +29,6 @@
   "depends": {
     "fabricloader": ">=0.14.5",
     "fabric": "*",
-    "java": ">=17"
+    "java": ">=21"
   }
 }
