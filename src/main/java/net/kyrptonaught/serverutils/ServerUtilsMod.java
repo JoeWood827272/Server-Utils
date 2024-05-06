@@ -47,13 +47,11 @@ import net.kyrptonaught.serverutils.welcomeMessage.WelcomeModule;
 import net.kyrptonaught.serverutils.whitelistSync.WhitelistSyncMod;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 
 public class ServerUtilsMod implements ModInitializer {
     public static String MOD_ID = "serverutils";
-    public static Identifier PRESENCE_PACKET = new Identifier(MOD_ID, "presence");
 
     public static ConfigManager config = new ConfigManager(MOD_ID);
     public static HashMap<String, Module> modules = new HashMap<>();

@@ -31,14 +31,15 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Shadow
     protected ServerWorld world;
 
+
     @Shadow
-    protected abstract void method_41250(BlockPos pos, boolean success, int sequence, String reason);
+    protected abstract void onBlockBreakingAction(BlockPos pos, boolean success, int sequence, String reason);
 
     @Inject(method = "processBlockBreakingAction", at = @At("HEAD"), cancellable = true)
     public void preventBlockBreak(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         if (PlayerLockdownMod.GLOBAL_LOCKDOWN || PlayerLockdownMod.LOCKEDDOWNPLAYERS.contains(player.getUuidAsString())) {
             this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(pos, this.world.getBlockState(pos)));
-            this.method_41250(pos, false, sequence, "block action restricted");
+            this.onBlockBreakingAction(pos, false, sequence, "block action restricted");
             ci.cancel();
         }
     }

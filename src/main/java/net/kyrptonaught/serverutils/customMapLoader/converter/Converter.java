@@ -130,6 +130,7 @@ public class Converter {
                                 addon.setMapDataForSize(mapSize, config);
                             }
 
+                            fixDimensionTypeFile(dimensionTypes.resolve(map.mapName + ".json"));
                             FileHelper.copyFile(dimensionTypes.resolve(map.mapName + ".json"), tempOut.resolve("dimension_type.json"));
 
                             String json = ServerUtilsMod.getGson().toJson(addon);
@@ -211,6 +212,7 @@ public class Converter {
 
                             addon.winner_coords = lobby.winnercoords;
 
+                            fixDimensionTypeFile(dimensionTypes.resolve(lobby.mapName + ".json"));
                             FileHelper.copyFile(dimensionTypes.resolve(lobby.mapName + ".json"), tempOut.resolve("dimension_type.json"));
 
                             String json = ServerUtilsMod.getGson().toJson(addon);
@@ -284,6 +286,8 @@ public class Converter {
 
                             addon.setMapDataForSize(mapSize, config);
                         }
+
+                        fixDimensionTypeFile(path.getParent().resolve("world").resolve("dimension_type.json"));
                         FileHelper.copyFile(path.getParent().resolve("world").resolve("dimension_type.json"), tempOut.resolve("dimension_type.json"));
 
                         String json = ServerUtilsMod.getGson().toJson(addon);
@@ -359,11 +363,24 @@ public class Converter {
         }
     }
 
+    private static void fixDimensionTypeFile(Path file) {
+        JsonObject json = ServerUtilsMod.getGson().fromJson(FileHelper.readFile(file), JsonObject.class);
+
+        JsonObject monsterLight = json.getAsJsonObject("monster_spawn_light_level");
+
+        if (monsterLight.has("value") && monsterLight.get("value").isJsonObject()) {
+            JsonObject value = monsterLight.getAsJsonObject("value");
+            value.keySet().forEach(key -> monsterLight.add(key, value.get(key)));
+            monsterLight.remove("value");
+        }
+
+        FileHelper.writeFile(file, ServerUtilsMod.getGson().toJson(json));
+    }
+
     public record BattleMapData(String mapName, String resourcepack, String mappack, String mappackkey) {
     }
 
     public record LobbyMapData(String mapName, String resourcepack, String winnercoords) {
-
     }
 
     public static class DummyPack extends ResourcePackConfig.RPOption {
