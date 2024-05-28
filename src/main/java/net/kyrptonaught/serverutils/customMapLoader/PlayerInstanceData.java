@@ -72,7 +72,6 @@ public class PlayerInstanceData {
         Vec3d vec3d = player.getPos();
 
         player.networkHandler.sendPacket(new PlaySoundS2CPacket(registryEntry, SoundCategory.MUSIC, vec3d.getX(), vec3d.getY(), vec3d.getZ(), 1, 1, player.getRandom().nextLong()));
-        System.out.println("Playing " + songID + " for " + player.getNameForScoreboard());
     }
 
     private void stopSong(ServerPlayerEntity player) {
