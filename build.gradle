@@ -30,12 +30,11 @@ dependencies {
 	//SGui
 	modImplementation include("eu.pb4:sgui:1.5.1+1.20.5") { exclude group: "net.fabricmc.fabric-api" }
 
-	//Modified Fantasy
+	//Fantasy
 	modImplementation include('xyz.nucleoid:fantasy:0.6.0+1.20.6') { exclude group: "net.fabricmc.fabric-api" }
 
-
 	//Luck Perms
-	modImplementation('maven.modrinth:luckperms:v5.4.123-fabric') { exclude group: "net.fabricmc.fabric-api" }
+	modImplementation('maven.modrinth:luckperms:v5.4.125-fabric') { exclude group: "net.fabricmc.fabric-api" }
 	modImplementation('me.lucko:fabric-permissions-api:0.3.1') { exclude group: "net.fabricmc.fabric-api" }
 	compileOnly 'net.luckperms:api:5.4'
 	modImplementation "com.moandjiezana.toml:toml4j:0.7.2"

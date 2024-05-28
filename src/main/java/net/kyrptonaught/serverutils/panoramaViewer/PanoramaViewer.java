@@ -26,7 +26,7 @@ public class PanoramaViewer extends ModuleWConfig<PanoramaConfig> {
             BossBarManager bossMan = server.getBossBarManager();
             for (Panorama panorama : panoramaEntries.values()) {
                 CommandBossBar bossBar = bossMan.get(new Identifier(MOD_ID, panorama.panoramaName));
-                if (!panorama.frameCounter.doesTick() || bossBar == null || bossBar.getPlayers().size() == 0) continue;
+                if (!panorama.frameCounter.doesTick() || bossBar == null || bossBar.getPlayers().isEmpty()) continue;
 
                 panorama.tickFrameCounter();
                 bossBar.setName(panorama.getPaddedText());

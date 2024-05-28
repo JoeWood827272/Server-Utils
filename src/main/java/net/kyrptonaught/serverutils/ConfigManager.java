@@ -3,6 +3,7 @@ package net.kyrptonaught.serverutils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMusic;
 import net.kyrptonaught.serverutils.customMapLoader.addons.ResourcePackList;
 import net.minecraft.util.Identifier;
 
@@ -19,6 +20,7 @@ public class ConfigManager {
             .setLenient()
             .registerTypeAdapter(Identifier.class, new Identifier.Serializer())
             .registerTypeAdapter(ResourcePackList.class, new ResourcePackList.Serializer())
+            .registerTypeAdapter(BattleMusic.class, new BattleMusic.Serializer())
             .create();
 
     public ConfigManager(String MOD_ID) {

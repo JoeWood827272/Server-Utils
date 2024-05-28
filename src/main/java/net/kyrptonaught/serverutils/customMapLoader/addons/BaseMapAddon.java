@@ -10,6 +10,9 @@ public class BaseMapAddon extends BaseAddon {
     public ResourcePackList required_packs;
     public ResourcePackList optional_packs;
 
+    public BattleMusic music_pack;
+    public BattleMusic safe_music_pack;
+
     public Identifier dimensionType_id;
     public transient DimensionType loadedDimensionType;
 

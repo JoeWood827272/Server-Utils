@@ -20,7 +20,7 @@ import net.kyrptonaught.serverutils.dimensionLoader.DimensionLoaderMod;
 import net.kyrptonaught.serverutils.discordBridge.MessageSender;
 import net.kyrptonaught.serverutils.playerJoinLocation.PlayerJoinLocationMod;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
-import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
+import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePack;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
 import net.minecraft.registry.CombinedDynamicRegistries;
 import net.minecraft.registry.Registry;
@@ -112,8 +112,21 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                 continue;
             }
 
-            if (instance.finishedLoading)
+            if (instance.tickMusic) {
+                long currentTime = System.currentTimeMillis();
+                server.getPlayerManager().getPlayerList().forEach(player -> {
+                    PlayerInstanceData data = instance.playerData.get(player.getUuidAsString());
+                    if (data != null) {
+                        if (data.isSongFinished(currentTime)) {
+                            data.playNextSong(player, currentTime);
+                        }
+                    }
+                });
+            }
+
+            if (instance.finishedLoading) {
                 continue;
+            }
 
             if (instance.runPreTriggerCondition(server))
                 instance.executeDatapack(server);
@@ -188,7 +201,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         instance.setInitialSpawns(instance.isCentralSpawnEnabled());
 
         for (ServerPlayerEntity player : players) {
-            battleTP(player, instance.getWorld(), centerPos, instance.getNextInitialSpawn(), null, false, true);
+            battleTP(player, instance.getWorld(), centerPos, instance.getNextInitialSpawn(), instance, false, true);
         }
     }
 
@@ -199,18 +212,20 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
 
         if (initialSpawn) {
             for (ServerPlayerEntity player : players) {
-                battleTP(player, instance.getWorld(), centerPos, instance.getNextInitialSpawn(), instance.getAddon(), true, true);
+                battleTP(player, instance.getWorld(), centerPos, instance.getNextInitialSpawn(), instance, true, true);
             }
         } else {
             for (ServerPlayerEntity player : players) {
-                battleTP(player, instance.getWorld(), centerPos, instance.getUnusedRandomSpawn(), instance.getAddon(), true, false);
+                battleTP(player, instance.getWorld(), centerPos, instance.getUnusedRandomSpawn(), instance, true, false);
             }
         }
     }
 
-    private static void battleTP(ServerPlayerEntity player, ServerWorld world, ParsedPlayerCoords centerPos, String rawCoords, BaseMapAddon addon, boolean loadResources, boolean freezePlayer) {
+    private static void battleTP(ServerPlayerEntity player, ServerWorld world, ParsedPlayerCoords centerPos, String rawCoords, LoadedBattleMapInstance instance, boolean loadResources, boolean freezePlayer) {
         if (loadResources)
-            loadResourcePacks(addon, player);
+            loadResourcePacks(instance.getAddon(), player);
+
+        instance.addPlayerData(player);
 
         ParsedPlayerCoords playerPos = parseVec3D(rawCoords);
 
@@ -288,12 +303,12 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         }
 
         if (addon.optional_packs != null && addon.optional_packs.packs != null) {
-            for (ResourcePackConfig.RPOption rpOption : addon.optional_packs.packs) {
+            for (ResourcePack pack : addon.optional_packs.packs) {
                 if (HostOptions.getOverwriteValue(player, addon.addon_id)) {
-                    if (HostOptions.getMapResourcePackValue(player, addon.addon_id, rpOption.packID))
-                        list.packs.add(rpOption);
+                    if (HostOptions.getMapResourcePackValue(player, addon.addon_id, pack.packID))
+                        list.packs.add(pack);
                 } else if (HostOptions.getGlobalAcceptValue(player))
-                    list.packs.add(rpOption);
+                    list.packs.add(pack);
             }
         }
 
@@ -311,6 +326,16 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
             LOADED_BATTLE_MAPS.get(dimID).scheduleToRemove = true;
 
         DimensionLoaderMod.unLoadDimension(server, dimID, functions);
+    }
+
+    public static void triggerMusic(Identifier dimID) {
+        if (LOADED_BATTLE_MAPS.containsKey(dimID))
+            LOADED_BATTLE_MAPS.get(dimID).tickMusic = true;
+    }
+
+    public static void skipSong(Identifier dimID, Collection<ServerPlayerEntity> players) {
+        if (LOADED_BATTLE_MAPS.containsKey(dimID))
+            players.forEach(player -> LOADED_BATTLE_MAPS.get(dimID).skipSong(player));
     }
 
     private static BlockPos parseBlockPos(String coords) {

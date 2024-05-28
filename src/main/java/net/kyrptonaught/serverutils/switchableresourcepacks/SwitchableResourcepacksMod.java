@@ -21,19 +21,23 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig> {
-    public static final HashMap<Identifier, ResourcePackConfig.RPOption> rpOptionHashMap = new HashMap<>();
+    public static final HashMap<Identifier, ResourcePack> ResourcePacks = new HashMap<>();
+    public static final HashMap<Identifier, MusicPack> MusicPacks = new HashMap<>();
 
     private static final HashMap<UUID, PackStatus> playerLoaded = new HashMap<>();
 
     private static Collection<CommandFunction<ServerCommandSource>> RP_FAILED_FUNCTIONS, RP_LOADED_FUNCTIONS, RP_STARTED_FUNCTIONS;
     private static final Identifier CUSTOMPACKID = new Identifier("custompack", "enabled");
+    private static final Identifier SAFEMUSICID = new Identifier("safemusic", "enabled");
     private static final UUID CUSTOMPACKUUID = UUID.nameUUIDFromBytes(CUSTOMPACKID.toString().getBytes(StandardCharsets.UTF_8));
 
     public void onConfigLoad(ResourcePackConfig config) {
         RP_FAILED_FUNCTIONS = null;
         RP_LOADED_FUNCTIONS = null;
-        rpOptionHashMap.clear();
-        config.packs.forEach(rpOption -> rpOptionHashMap.put(rpOption.packID, rpOption));
+        ResourcePacks.clear();
+        MusicPacks.clear();
+        config.packs.forEach(pack -> ResourcePacks.put(pack.packID, pack));
+        config.musicPacks.forEach(pack -> MusicPacks.put(pack.packID, pack));
     }
 
     @Override
@@ -103,12 +107,12 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
                         .executes(context -> {
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             Identifier packID = IdentifierArgumentType.getIdentifier(context, "packid");
-                            ResourcePackConfig.RPOption rpOption = rpOptionHashMap.get(packID);
-                            if (rpOption == null) {
+                            ResourcePack pack = ResourcePacks.get(packID);
+                            if (pack == null) {
                                 context.getSource().sendFeedback(CMDHelper.getFeedbackLiteral("Packname: " + packID + " was not found"), false);
                             } else {
-                                execute(rpOption, player);
-                                context.getSource().sendFeedback(CMDHelper.getFeedback(Text.literal("Enabled pack: ").append(rpOption.getNameText())), false);
+                                execute(pack, player);
+                                context.getSource().sendFeedback(CMDHelper.getFeedback(Text.literal("Enabled pack: ").append(pack.getNameText())), false);
                             }
                             return 1;
                         })));
@@ -129,13 +133,31 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
                             player.sendMessage(Text.translatable(enabled ? "lem.config.custompack.enable" : "lem.config.custompack.disable"));
                             return 1;
                         })));
+
+        dispatcher.register(CommandManager.literal("safemusic")
+                .requires(source -> source.hasPermissionLevel(0))
+                .then(CommandManager.argument("enabled", BoolArgumentType.bool())
+                        .executes(context -> {
+                            boolean enabled = BoolArgumentType.getBool(context, "enabled");
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+
+                            UserConfigStorage.setValue(player, SAFEMUSICID, String.valueOf(enabled));
+                            UserConfigStorage.syncPlayer(player);
+
+                            player.sendMessage(Text.translatable(enabled ? "lem.config.safemusic.enable" : "lem.config.safemusic.disable"));
+                            return 1;
+                        })));
     }
 
     public static boolean isCustomPackEnabled(ServerPlayerEntity player) {
         return Boolean.parseBoolean(UserConfigStorage.getValue(player, CUSTOMPACKID));
     }
 
-    private void execute(ResourcePackConfig.RPOption rpOption, ServerPlayerEntity player) {
+    public static boolean isSafeMusicEnabled(ServerPlayerEntity player) {
+        return Boolean.parseBoolean(UserConfigStorage.getValue(player, SAFEMUSICID));
+    }
+
+    private void execute(ResourcePack pack, ServerPlayerEntity player) {
         if (RP_STARTED_FUNCTIONS == null)
             RP_STARTED_FUNCTIONS = CMDHelper.getFunctions(player.getServer(), ServerUtilsMod.SwitchableResourcepacksModule.getConfig().playerStartFunction);
 
@@ -147,15 +169,15 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
             return;
         }
 
-        UUID packUUID = UUID.nameUUIDFromBytes(rpOption.packID.toString().getBytes(StandardCharsets.UTF_8));
+        UUID packUUID = UUID.nameUUIDFromBytes(pack.packID.toString().getBytes(StandardCharsets.UTF_8));
         if (playerLoaded.containsKey(player.getUuid()) && playerLoaded.get(player.getUuid()).getPacks().containsKey(packUUID))
             return;
 
         addPackStatus(player, packUUID, false);
-        player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, rpOption.url, rpOption.hash, true, Optional.of(Text.literal(getConfig().message))));
+        player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, pack.url, pack.hash, true, Optional.of(Text.literal(getConfig().message))));
     }
 
-    public static void addPacks(List<ResourcePackConfig.RPOption> packList, ServerPlayerEntity player) {
+    public static void addPacks(List<ResourcePack> packList, ServerPlayerEntity player) {
         if (!hasNewPacks(packList, player)) return;
 
         if (RP_STARTED_FUNCTIONS == null)
@@ -171,10 +193,10 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
 
         clearTempPacks(player);
 
-        for (ResourcePackConfig.RPOption rpOption : packList) {
-            UUID packUUID = UUID.nameUUIDFromBytes(rpOption.packID.toString().getBytes(StandardCharsets.UTF_8));
+        for (ResourcePack pack : packList) {
+            UUID packUUID = UUID.nameUUIDFromBytes(pack.packID.toString().getBytes(StandardCharsets.UTF_8));
             addPackStatus(player, packUUID, true);
-            player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, rpOption.url, rpOption.hash, true, Optional.of(Text.literal(ServerUtilsMod.SwitchableResourcepacksModule.getConfig().message))));
+            player.networkHandler.sendPacket(new ResourcePackSendS2CPacket(packUUID, pack.url, pack.hash, true, Optional.of(Text.literal(ServerUtilsMod.SwitchableResourcepacksModule.getConfig().message))));
         }
     }
 
@@ -189,14 +211,14 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
             });
     }
 
-    private static boolean hasNewPacks(List<ResourcePackConfig.RPOption> packList, ServerPlayerEntity player) {
+    private static boolean hasNewPacks(List<ResourcePack> packList, ServerPlayerEntity player) {
         List<UUID> c = new ArrayList<>();
         if (playerLoaded.containsKey(player.getUuid()))
             playerLoaded.get(player.getUuid()).getPacks().forEach((uuid, status) -> c.add(uuid));
 
         List<UUID> n = new ArrayList<>();
-        for (ResourcePackConfig.RPOption rpOption : packList) {
-            UUID packUUID = UUID.nameUUIDFromBytes(rpOption.packID.toString().getBytes(StandardCharsets.UTF_8));
+        for (ResourcePack pack : packList) {
+            UUID packUUID = UUID.nameUUIDFromBytes(pack.packID.toString().getBytes(StandardCharsets.UTF_8));
             n.add(packUUID);
         }
 
