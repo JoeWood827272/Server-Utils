@@ -8,7 +8,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record TakeEverythingPacket(boolean enabled) implements CustomPayload {
-    public static final Id<TakeEverythingPacket> PACKET_ID = new Id<>(new Identifier(ServerUtilsMod.TakeEverythingModule.getMOD_ID(), "take_everything_packet"));
+    public static final Id<TakeEverythingPacket> PACKET_ID = new Id<>(Identifier.of(ServerUtilsMod.TakeEverythingModule.getMOD_ID(), "take_everything_packet"));
     public static final PacketCodec<RegistryByteBuf, TakeEverythingPacket> codec = PacketCodecs.BOOL.xmap(TakeEverythingPacket::new, TakeEverythingPacket::enabled).cast();
 
     @Override

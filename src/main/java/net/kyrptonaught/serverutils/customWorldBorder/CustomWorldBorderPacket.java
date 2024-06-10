@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 
 public record CustomWorldBorderPacket(double xCenter, double zCenter, double xSize,
                                       double zSize) implements CustomPayload {
-    public static final CustomPayload.Id<CustomWorldBorderPacket> PACKET_ID = new CustomPayload.Id<>(new Identifier(ServerUtilsMod.CustomWorldBorder.getMOD_ID(), "customborder"));
+    public static final CustomPayload.Id<CustomWorldBorderPacket> PACKET_ID = new CustomPayload.Id<>(Identifier.of(ServerUtilsMod.CustomWorldBorder.getMOD_ID(), "customborder"));
     public static final PacketCodec<RegistryByteBuf, CustomWorldBorderPacket> codec = PacketCodec.of(CustomWorldBorderPacket::write, CustomWorldBorderPacket::read);
 
     public static CustomWorldBorderPacket read(RegistryByteBuf buf) {

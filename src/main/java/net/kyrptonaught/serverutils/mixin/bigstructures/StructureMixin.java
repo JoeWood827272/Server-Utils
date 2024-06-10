@@ -18,7 +18,7 @@ public class StructureMixin {
     @Redirect(method = "spawnEntities", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
     public <E> E fixPaintings(Iterator<StructureTemplate.StructureEntityInfo> instance) {
         StructureTemplate.StructureEntityInfo nextStructureEntityInfo = instance.next();
-        Optional<EntityType<?>> entityType = Registries.ENTITY_TYPE.getOrEmpty(new Identifier(nextStructureEntityInfo.nbt.getString("id")));
+        Optional<EntityType<?>> entityType = Registries.ENTITY_TYPE.getOrEmpty(Identifier.of(nextStructureEntityInfo.nbt.getString("id")));
         if (entityType.isPresent() && entityType.get().equals(EntityType.PAINTING)) {
             return (E) new StructureTemplate.StructureEntityInfo(Vec3d.of(nextStructureEntityInfo.blockPos), nextStructureEntityInfo.blockPos, nextStructureEntityInfo.nbt);
         }

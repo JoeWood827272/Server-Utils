@@ -55,7 +55,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
             Style style = newSuffix.displayText.getStyle();
             String fontPlaceHolder = style.getFont().toString();
-            style = style.withFont(new Identifier(ScoreboardSuffixMod.playerSuffixStorage.getFont(player, fontPlaceHolder)));
+            style = style.withFont(Identifier.of(ScoreboardSuffixMod.playerSuffixStorage.getFont(player, fontPlaceHolder)));
             suffix.append(newSuffix.displayText.copy().setStyle(style));
 
         });

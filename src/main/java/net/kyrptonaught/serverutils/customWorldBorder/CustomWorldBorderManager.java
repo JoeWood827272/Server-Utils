@@ -105,15 +105,15 @@ public class CustomWorldBorderManager {
 
     private static void checkBounds(ServerPlayerEntity player, WorldBorder worldBorder, double maxY) {
         if (player.getX() > worldBorder.getBoundEast())
-            player.teleport(worldBorder.getBoundEast() - .5, player.getY(), player.getZ());
+            player.requestTeleport(worldBorder.getBoundEast() - .5, player.getY(), player.getZ());
         if (player.getX() < worldBorder.getBoundWest())
-            player.teleport(worldBorder.getBoundWest() + .5, player.getY(), player.getZ());
+            player.requestTeleport(worldBorder.getBoundWest() + .5, player.getY(), player.getZ());
         if (player.getZ() > worldBorder.getBoundSouth())
-            player.teleport(player.getX(), player.getY(), worldBorder.getBoundSouth() - .5);
+            player.requestTeleport(player.getX(), player.getY(), worldBorder.getBoundSouth() - .5);
         if (player.getZ() < worldBorder.getBoundNorth())
-            player.teleport(player.getX(), player.getY(), worldBorder.getBoundNorth() + .5);
+            player.requestTeleport(player.getX(), player.getY(), worldBorder.getBoundNorth() + .5);
         if (player.getY() > maxY)
-            player.teleport(player.getX(), maxY - .5, player.getZ());
+            player.requestTeleport(player.getX(), maxY - .5, player.getZ());
     }
 
     public static void sendWorldBorderPacket(ServerPlayerEntity player, WorldBorder worldBorder) {

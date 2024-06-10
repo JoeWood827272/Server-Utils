@@ -8,7 +8,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record ServerUtilsPresencePacket(boolean enabled) implements CustomPayload {
-    public static final CustomPayload.Id<ServerUtilsPresencePacket> PACKET_ID = new CustomPayload.Id<>(new Identifier(ServerUtilsMod.MOD_ID, "presence"));
+    public static final CustomPayload.Id<ServerUtilsPresencePacket> PACKET_ID = new CustomPayload.Id<>(Identifier.of(ServerUtilsMod.MOD_ID, "presence"));
     public static final PacketCodec<RegistryByteBuf, ServerUtilsPresencePacket> codec = PacketCodecs.BOOL.xmap(ServerUtilsPresencePacket::new, ServerUtilsPresencePacket::enabled).cast();
 
     @Override

@@ -63,14 +63,14 @@ public class PanoramaCommand {
 
                                     for (int i = begin; i < end; i++) {
                                         String output = "a" + Padder.smartPad(i, "") + "a";
-                                        context.getSource().sendFeedback(CMDHelper.getFeedbackLiteral(output).setStyle(Style.EMPTY.withFont(new Identifier("4jmenu:panorama/1/day/3"))), false);
+                                        context.getSource().sendFeedback(CMDHelper.getFeedbackLiteral(output).setStyle(Style.EMPTY.withFont(Identifier.of("4jmenu:panorama/1/day/3"))), false);
                                     }
                                     return 1;
                                 }))
                         .executes(context -> {
                             int begin = IntegerArgumentType.getInteger(context, "begin");
                             String output = "a" + Padder.smartPad(begin, "") + "a";
-                            context.getSource().sendFeedback(CMDHelper.getFeedbackLiteral(output).setStyle(Style.EMPTY.withFont(new Identifier("4jmenu:panorama/1/day/3"))), false);
+                            context.getSource().sendFeedback(CMDHelper.getFeedbackLiteral(output).setStyle(Style.EMPTY.withFont(Identifier.of("4jmenu:panorama/1/day/3"))), false);
                             return 1;
                         })));
          */
@@ -80,7 +80,7 @@ public class PanoramaCommand {
     public static int executeClear(CommandContext<ServerCommandSource> commandContext, Collection<ServerPlayerEntity> players) {
         BossBarManager bossMan = commandContext.getSource().getServer().getBossBarManager();
         for (String panoramaName : PanoramaViewer.panoramaEntries.keySet()) {
-            CommandBossBar bossBar = bossMan.get(new Identifier(PanoramaViewer.MOD_ID, panoramaName));
+            CommandBossBar bossBar = bossMan.get(Identifier.of(PanoramaViewer.MOD_ID, panoramaName));
             if (bossBar != null) {
                 if (players == null)
                     bossBar.clearPlayers();
@@ -113,9 +113,9 @@ public class PanoramaCommand {
         }
 
         BossBarManager bossMan = commandContext.getSource().getServer().getBossBarManager();
-        CommandBossBar bossBar = bossMan.get(new Identifier(PanoramaViewer.MOD_ID, panorama.panoramaName));
+        CommandBossBar bossBar = bossMan.get(Identifier.of(PanoramaViewer.MOD_ID, panorama.panoramaName));
         if (bossBar == null) {
-            bossBar = bossMan.add(new Identifier(PanoramaViewer.MOD_ID, panorama.panoramaName), panorama.getPaddedText());
+            bossBar = bossMan.add(Identifier.of(PanoramaViewer.MOD_ID, panorama.panoramaName), panorama.getPaddedText());
         }
 
         for (ServerPlayerEntity player : players)

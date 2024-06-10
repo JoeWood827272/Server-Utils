@@ -9,7 +9,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 public class ScoreboardPlayerInfoNetworking {
-    private static final Identifier HAS_MODS_PACKET = new Identifier(ServerUtilsMod.ScoreboardPlayerInfoModule.getMOD_ID(), "has_mods_packet");
+    private static final Identifier HAS_MODS_PACKET = Identifier.of(ServerUtilsMod.ScoreboardPlayerInfoModule.getMOD_ID(), "has_mods_packet");
 
     public static void registerReceivePacket() {
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {

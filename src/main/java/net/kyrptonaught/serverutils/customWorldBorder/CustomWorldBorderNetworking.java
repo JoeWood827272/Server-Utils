@@ -8,7 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public class CustomWorldBorderNetworking {
-    public static final Identifier CUSTOM_BORDER_PACKET = new Identifier(ServerUtilsMod.CustomWorldBorder.getMOD_ID(), "customborder");
+    public static final Identifier CUSTOM_BORDER_PACKET = Identifier.of(ServerUtilsMod.CustomWorldBorder.getMOD_ID(), "customborder");
 
 
     public static void sendCustomWorldBorderPacket(ServerPlayerEntity player, double xCenter, double zCenter, double xSize, double zSize) {

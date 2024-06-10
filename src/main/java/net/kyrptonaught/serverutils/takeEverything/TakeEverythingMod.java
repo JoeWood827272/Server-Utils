@@ -35,7 +35,7 @@ public class TakeEverythingMod extends ModuleWConfig<TakeEverythingConfig> {
     public static void registerItemUse() {
         UseItemCallback.EVENT.register((player, world, hand) -> {
             ItemStack stack = player.getStackInHand(hand);
-            if (!world.isClient && TakeEverythingHelper.isSwappableItem(stack)) {
+            if (!world.isClient && TakeEverythingHelper.isSwappableItem(player, stack)) {
                 stack = TakeEverythingHelper.equipOrSwapArmor(player, stack, true); //return already equippedStack or empty
                 if (!stack.isEmpty()) player.setStackInHand(hand, stack);
                 return TypedActionResult.success(stack);

@@ -7,7 +7,6 @@ public class QueuedPlayerData {
     public Boolean hasLCH;
     public Boolean hasOptishit;
     public Boolean hasController;
-    public Boolean isBedrock;
     public Integer guiScale;
     public Integer panScale;
 

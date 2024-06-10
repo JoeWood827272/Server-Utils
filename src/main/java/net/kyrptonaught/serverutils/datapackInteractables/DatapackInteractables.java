@@ -64,13 +64,13 @@ public class DatapackInteractables extends Module {
 
         for (String id : blockIds.keySet()) {
             if (!id.startsWith("#")) {
-                if (blockIds.get(id)) blockIDs.add(new Identifier(id));
-                else blockIDs.remove(new Identifier(id));
+                if (blockIds.get(id)) blockIDs.add(Identifier.of(id));
+                else blockIDs.remove(Identifier.of(id));
             } else {
                 if (blockIds.get(id))
-                    blockIDs.addAll(getBlockIDsInTag(new Identifier(id.replaceAll("#", ""))));
+                    blockIDs.addAll(getBlockIDsInTag(Identifier.of(id.replaceAll("#", ""))));
                 else
-                    blockIDs.removeAll(getBlockIDsInTag(new Identifier(id.replaceAll("#", ""))));
+                    blockIDs.removeAll(getBlockIDsInTag(Identifier.of(id.replaceAll("#", ""))));
             }
         }
     }

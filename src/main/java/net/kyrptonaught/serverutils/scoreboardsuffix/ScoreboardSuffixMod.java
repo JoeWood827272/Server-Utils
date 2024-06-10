@@ -64,8 +64,8 @@ public class ScoreboardSuffixMod extends Module {
     }
 
     public static int executeSetSuffix(CommandContext<ServerCommandSource> context, Collection<ServerPlayerEntity> players) {
-        String placeholder = new Identifier(StringArgumentType.getString(context, "fontPlaceholder")).toString();
-        String font = new Identifier(StringArgumentType.getString(context, "font")).toString();
+        String placeholder = Identifier.of(StringArgumentType.getString(context, "fontPlaceholder")).toString();
+        String font = Identifier.of(StringArgumentType.getString(context, "font")).toString();
         players.forEach(serverPlayerEntity -> {
             String playerName = serverPlayerEntity.getNameForScoreboard();
             playerSuffixStorage.setFont(playerName, placeholder, font);

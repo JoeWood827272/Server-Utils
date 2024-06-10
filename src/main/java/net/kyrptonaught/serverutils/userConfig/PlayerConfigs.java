@@ -52,13 +52,13 @@ public class PlayerConfigs {
         JsonObject configs = jsonObject.getAsJsonObject("configs");
         if (configs != null)
             for (Map.Entry<String, JsonElement> innerEntry : configs.entrySet())
-                playerConfigs.setValue(new Identifier(innerEntry.getKey()), innerEntry.getValue().getAsString());
+                playerConfigs.setValue(Identifier.of(innerEntry.getKey()), innerEntry.getValue().getAsString());
 
         JsonObject presets = jsonObject.getAsJsonObject("presets");
         if (presets != null)
             for (Map.Entry<String, JsonElement> innerEntry : presets.entrySet())
                 for (Map.Entry<String, JsonElement> innerEntry2 : innerEntry.getValue().getAsJsonObject().entrySet())
-                    playerConfigs.setPresetValueInternal(new Identifier(innerEntry.getKey()), new Identifier(innerEntry2.getKey()), innerEntry2.getValue().getAsString());
+                    playerConfigs.setPresetValueInternal(Identifier.of(innerEntry.getKey()), Identifier.of(innerEntry2.getKey()), innerEntry2.getValue().getAsString());
 
         return playerConfigs;
     }

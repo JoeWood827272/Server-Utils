@@ -23,7 +23,7 @@ public class ResourcePackList {
                 if (array.get(i).isJsonObject()) {
                     packList.packs.add(context.deserialize(array.get(i), ResourcePack.class));
                 } else {
-                    packList.packs.add(SwitchableResourcepacksMod.ResourcePacks.get(new Identifier(array.get(i).getAsString())));
+                    packList.packs.add(SwitchableResourcepacksMod.ResourcePacks.get(Identifier.of(array.get(i).getAsString())));
                 }
             }
 

@@ -12,7 +12,7 @@ import static net.kyrptonaught.serverutils.ServerUtilsMod.SyncedKeybindsModule;
 
 public record SyncKeybindsPacket(
         HashMap<Identifier, SyncedKeybindsConfig.KeybindConfigItem> keybinds) implements CustomPayload {
-    public static final CustomPayload.Id<SyncKeybindsPacket> PACKET_ID = new CustomPayload.Id<>(new Identifier(SyncedKeybindsModule.getMOD_ID(), "keybind_pressed_packet"));
+    public static final CustomPayload.Id<SyncKeybindsPacket> PACKET_ID = new CustomPayload.Id<>(Identifier.of(SyncedKeybindsModule.getMOD_ID(), "keybind_pressed_packet"));
     public static final PacketCodec<RegistryByteBuf, SyncKeybindsPacket> codec = PacketCodec.of(SyncKeybindsPacket::write, SyncKeybindsPacket::read);
 
     public static SyncKeybindsPacket read(RegistryByteBuf buf) {

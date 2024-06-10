@@ -28,7 +28,7 @@ dependencies {
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
 	//SGui
-	modImplementation include("eu.pb4:sgui:1.5.1+1.20.5") { exclude group: "net.fabricmc.fabric-api" }
+	modImplementation include("eu.pb4:sgui:1.6.0+1.21") { exclude group: "net.fabricmc.fabric-api" }
 
 	//Fantasy
 	modImplementation include('xyz.nucleoid:fantasy:0.6.0+1.20.6') { exclude group: "net.fabricmc.fabric-api" }
@@ -40,7 +40,7 @@ dependencies {
 	modImplementation "com.moandjiezana.toml:toml4j:0.7.2"
 
 	//carpet
-	modImplementation('carpet:fabric-carpet:1.20.6-1.4.141+v240429') { exclude group: "net.fabricmc.fabric-api" }
+	modImplementation('carpet:fabric-carpet:1.21-pre3-1.4.146+v240605') { exclude group: "net.fabricmc.fabric-api" }
 
 	//NoChatReports
 	modImplementation('maven.modrinth:no-chat-reports:Fabric-1.20.6-v2.7.0') { exclude group: "net.fabricmc.fabric-api" }

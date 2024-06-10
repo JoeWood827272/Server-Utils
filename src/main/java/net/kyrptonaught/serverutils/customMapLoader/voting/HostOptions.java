@@ -16,7 +16,7 @@ public class HostOptions {
     }
 
     public static Identifier getMapResourcePackKey(Identifier mapID, Identifier packID) {
-        return new Identifier("acceptedpacks", mapID.toUnderscoreSeparatedString() + "." + packID.toUnderscoreSeparatedString());
+        return Identifier.of("acceptedpacks", mapID.toUnderscoreSeparatedString() + "." + packID.toUnderscoreSeparatedString());
     }
 
     public static boolean getMapResourcePackValue(ServerPlayerEntity player, Identifier mapID, Identifier packID) {
@@ -24,7 +24,7 @@ public class HostOptions {
     }
 
     public static Identifier getGlobalAcceptKey() {
-        return new Identifier("acceptedpacks", "global_accept");
+        return Identifier.of("acceptedpacks", "global_accept");
     }
 
     public static boolean getGlobalAcceptValue(ServerPlayerEntity player) {
@@ -32,7 +32,7 @@ public class HostOptions {
     }
 
     public static Identifier getOverwriteKey(Identifier mapID) {
-        return new Identifier("acceptedpacks", "acceptance_policy." + mapID.toUnderscoreSeparatedString() + ".dontaskagain");
+        return Identifier.of("acceptedpacks", "acceptance_policy." + mapID.toUnderscoreSeparatedString() + ".dontaskagain");
     }
 
     public static boolean getOverwriteValue(ServerPlayerEntity player, Identifier mapID) {

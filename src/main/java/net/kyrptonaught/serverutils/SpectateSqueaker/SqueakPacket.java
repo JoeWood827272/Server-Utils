@@ -8,7 +8,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
 public record SqueakPacket(boolean enabled) implements CustomPayload {
-    public static final Id<SqueakPacket> PACKET_ID = new Id<>(new Identifier(ServerUtilsMod.SpectatorSqueakModule.getMOD_ID(), "squeak_packet"));
+    public static final Id<SqueakPacket> PACKET_ID = new Id<>(Identifier.of(ServerUtilsMod.SpectatorSqueakModule.getMOD_ID(), "squeak_packet"));
     public static final PacketCodec<RegistryByteBuf, SqueakPacket> codec = PacketCodecs.BOOL.xmap(SqueakPacket::new, SqueakPacket::enabled).cast();
 
     @Override

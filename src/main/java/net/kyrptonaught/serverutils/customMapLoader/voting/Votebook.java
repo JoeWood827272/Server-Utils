@@ -282,7 +282,7 @@ public class Votebook {
     }
 
     private static void generateMapExtras(DynamicData data, BookPage bookPage) {
-        BattleMapAddon addon = CustomMapLoaderMod.BATTLE_MAPS.get(new Identifier(data.arg(2)));
+        BattleMapAddon addon = CustomMapLoaderMod.BATTLE_MAPS.get(Identifier.of(data.arg(2)));
 
         Text requiredHeader = withHover(dashTrans("lem.mapdecider.menu.requiredpacks"), trimName(addon.getNameText(), 20));
         if (addon.required_packs == null || addon.required_packs.packs.isEmpty()) {

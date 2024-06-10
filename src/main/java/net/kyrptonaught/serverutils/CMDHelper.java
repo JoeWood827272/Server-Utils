@@ -46,10 +46,10 @@ public class CMDHelper {
 
     public static Collection<CommandFunction<ServerCommandSource>> getFunctions(MinecraftServer server, String id) {
         if (id.startsWith("#")) {
-            return server.getCommandFunctionManager().getTag(new Identifier(id.replaceAll("#", "")));
+            return server.getCommandFunctionManager().getTag(Identifier.of(id.replaceAll("#", "")));
         }
 
-        Optional<CommandFunction<ServerCommandSource>> function = server.getCommandFunctionManager().getFunction(new Identifier(id));
+        Optional<CommandFunction<ServerCommandSource>> function = server.getCommandFunctionManager().getFunction(Identifier.of(id));
         if (function.isPresent()) return Collections.singleton(function.get());
 
         return Collections.emptySet();

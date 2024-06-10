@@ -1,13 +1,18 @@
 package net.kyrptonaught.serverutils.takeEverything;
 
+import net.fabricmc.fabric.api.item.v1.EquipmentSlotProvider;
 import net.minecraft.block.SkullBlock;
+import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.*;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -33,14 +38,14 @@ public class TakeEverythingHelper {
                 player.currentScreenHandler.onSlotClick(i, 0, SlotActionType.QUICK_MOVE, player);
             }
         }
-        RegistryEntry<SoundEvent> sound = RegistryEntry.of(SoundEvent.of(new Identifier("serverutils:takeeverything")));
+        RegistryEntry<SoundEvent> sound = RegistryEntry.of(SoundEvent.of(Identifier.of("serverutils:takeeverything")));
         Vec3d pos = player.getPos();
         player.networkHandler.sendPacket(new PlaySoundS2CPacket(sound, SoundCategory.MASTER, pos.x, pos.y, pos.z, 1, 1, player.getRandom().nextLong()));
         return true;
     }
 
     public static boolean canEquip(PlayerEntity player, ItemStack armor) {
-        EquipmentSlot equipmentSlot = getEquipSlot(armor);
+        EquipmentSlot equipmentSlot = getEquipSlot(player,armor);
         if (equipmentSlot == null)
             return false;
         ItemStack equipped = player.getEquippedStack(equipmentSlot);
@@ -48,7 +53,7 @@ public class TakeEverythingHelper {
     }
 
     public static boolean canSwap(PlayerEntity player, ItemStack armor, boolean alwaysSwap) {
-        EquipmentSlot equipmentSlot = getEquipSlot(armor);
+        EquipmentSlot equipmentSlot = getEquipSlot(player,armor);
         if (equipmentSlot == null)
             return false;
         ItemStack equipped = player.getEquippedStack(equipmentSlot);
@@ -81,7 +86,7 @@ public class TakeEverythingHelper {
     }
 
     public static ItemStack equipOrSwapArmor(PlayerEntity player, ItemStack armor, boolean alwaysSwap) {
-        EquipmentSlot equipmentSlot = getEquipSlot(armor);
+        EquipmentSlot equipmentSlot = getEquipSlot(player,armor);
         if (equipmentSlot == null)
             return ItemStack.EMPTY;
 
@@ -100,20 +105,20 @@ public class TakeEverythingHelper {
         return ItemStack.EMPTY;
     }
 
-    public static EquipmentSlot getEquipSlot(ItemStack stack) {
-        EquipmentSlot slot = PlayerEntity.getPreferredEquipmentSlot(stack);
+    public static EquipmentSlot getEquipSlot(LivingEntity entity, ItemStack stack) {
+        EquipmentSlot slot = entity.getPreferredEquipmentSlot(stack);
 
         if (slot == EquipmentSlot.MAINHAND || slot == EquipmentSlot.OFFHAND)
             return null;
         return slot;
     }
 
-    public static boolean isSwappableItem(ItemStack stack) {
-        return getEquipSlot(stack) != null;
+    public static boolean isSwappableItem(LivingEntity entity,ItemStack stack) {
+        return getEquipSlot(entity,stack) != null;
     }
 
     public static Boolean hasBinding(ItemStack stack) {
-        return EnchantmentHelper.hasBindingCurse(stack);
+        return EnchantmentHelper.hasAnyEnchantmentsWith(stack, EnchantmentEffectComponentTypes.PREVENT_ARMOR_CHANGE);
     }
 
     public static Boolean hasEnchants(PlayerEntity playerEntity, ItemStack stack) {

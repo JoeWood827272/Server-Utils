@@ -46,7 +46,7 @@ public class PlayerLockdownMod extends Module {
                 for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
                     Vec3d pos = FROZENPLAYERS.get(player.getUuidAsString());
                     if (pos != null && !pos.equals(player.getPos())) {
-                        player.teleport(pos.getX(), pos.getY(), pos.getZ());
+                        player.requestTeleport(pos.getX(), pos.getY(), pos.getZ());
                     }
                 }
             }

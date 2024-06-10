@@ -1,6 +1,5 @@
 package net.kyrptonaught.serverutils.customMapLoader.converter;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import net.fabricmc.loader.api.FabricLoader;
@@ -11,9 +10,7 @@ import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
 import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMusic;
 import net.kyrptonaught.serverutils.customMapLoader.addons.LobbyMapAddon;
 import net.kyrptonaught.serverutils.customMapLoader.addons.ResourcePackList;
-import net.kyrptonaught.serverutils.switchableresourcepacks.MusicPack;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePack;
-import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePackConfig;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
@@ -39,19 +36,6 @@ public class Converter {
     }
 
     public static void BattleConvert() {
-        Map<String, MusicPackData> musicPacks = new HashMap<>();
-        musicPacks.put("lem.battle:chinese", new MusicPackData(ImmutableMap.of("1", 199, "2", 145, "3", 206, "4", 211)));
-        musicPacks.put("lem.battle:city", new MusicPackData(ImmutableMap.of("1", 179, "2", 196, "3", 194, "4", 228, "5", 183)));
-        musicPacks.put("lem.battle:fallout", new MusicPackData(ImmutableMap.of("1", 183, "2", 179, "3", 193, "4", 188, "5", 208, "6", 126, "7", 103)));
-        musicPacks.put("lem.battle:fantasy", new MusicPackData(ImmutableMap.of("1", 130, "2", 214, "3", 222)));
-        musicPacks.put("lem.battle:festive", new MusicPackData(ImmutableMap.of("1", 138, "2", 156, "3", 165)));
-        musicPacks.put("lem.battle:greek", new MusicPackData(ImmutableMap.of("1", 155, "2", 215, "3", 216)));
-        musicPacks.put("lem.battle:halloween", new MusicPackData(ImmutableMap.of("1", 151, "2", 166, "3", 164)));
-        musicPacks.put("lem.battle:plastic", new MusicPackData(ImmutableMap.of("1", 135, "2", 155, "3", 150)));
-        musicPacks.put("lem.battle:steampunk", new MusicPackData(ImmutableMap.of("1", 170, "2", 179, "3", 223, "4", 190)));
-        musicPacks.put("lem.battle:vanilla", new MusicPackData(ImmutableMap.of("1", 491, "2", 489, "3", 508, "4", 528)));
-        musicPacks.put("lem.battle:western", new MusicPackData(ImmutableMap.of("1", 140, "2", 148, "3", 172)));
-
         BattleMapData[] battlemaps = new BattleMapData[]{
                 new BattleMapData("cavern", "lem.base:vanilla", "mappack0", "lem.battle.mapdecider.menu.voting.mappack0"),
                 new BattleMapData("cove", "lem.base:vanilla", "mappack0", "lem.battle.mapdecider.menu.voting.mappack0"),
@@ -110,7 +94,7 @@ public class Converter {
                             FileHelper.createDir(tempOut);
 
                             BattleMapAddon addon = new BattleMapAddon();
-                            addon.addon_id = new Identifier("4jstudios", map.mapName);
+                            addon.addon_id = Identifier.of("4jstudios", map.mapName);
                             addon.addon_type = BattleMapAddon.TYPE;
                             addon.addon_pack = map.mappack;
                             addon.addon_pack_key = map.mappackkey;
@@ -207,7 +191,7 @@ public class Converter {
                             FileHelper.createDir(tempOut);
 
                             LobbyMapAddon addon = new LobbyMapAddon();
-                            addon.addon_id = new Identifier("4jstudios", lobby.mapName);
+                            addon.addon_id = Identifier.of("4jstudios", lobby.mapName);
                             addon.addon_type = LobbyMapAddon.TYPE;
                             addon.addon_pack = "base";
                             addon.name_key = "lem.menu.host.config.update.lobby." + lobby.mapName;
@@ -270,7 +254,7 @@ public class Converter {
                         FileHelper.createDir(tempOut);
 
                         BattleMapAddon addon = new BattleMapAddon();
-                        addon.addon_id = new Identifier("lemcommunity", rawConfig.get("id").getAsString());
+                        addon.addon_id = Identifier.of("lemcommunity", rawConfig.get("id").getAsString());
                         addon.addon_type = BattleMapAddon.TYPE;
                         addon.addon_pack = "Other";
                         addon.name = mapname;
@@ -402,35 +386,17 @@ public class Converter {
     public record LobbyMapData(String mapName, String resourcepack, String winnercoords) {
     }
 
-    public record MusicPackData(Map<String, Integer> songs) {
-
-        public MusicPack build(String id) {
-            MusicPack pack = new MusicPack();
-            pack.packID = new Identifier(id);
-            pack.play_order = MusicPack.PLAY_ORDER.CHRONOLOGICAL;
-
-            LinkedHashMap<Identifier, Integer> map = new LinkedHashMap<>();
-            for (String song : songs.keySet()) {
-                map.put(new Identifier(id.replace("lem.battle:", "lem.battle:music.") + "." + song), songs.get(song));
-            }
-            pack.songs = map;
-
-            return pack;
-        }
-    }
-
-
     public static class DummyPack extends ResourcePack {
         public DummyPack(String pack) {
             super();
-            this.packID = new Identifier(pack);
+            this.packID = Identifier.of(pack);
         }
     }
 
     public static class DummyMusic extends BattleMusic {
         public DummyMusic(String pack) {
             super();
-            this.packID = new Identifier(pack);
+            this.packID = Identifier.of(pack);
         }
     }
 

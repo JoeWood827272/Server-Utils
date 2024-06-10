@@ -134,7 +134,7 @@ public class CustomUI extends Module {
             }
         }
 
-        slotDefinition.generatedStack = Registries.ITEM.get(new Identifier(slotDefinition.itemID)).getDefaultStack();
+        slotDefinition.generatedStack = Registries.ITEM.get(Identifier.of(slotDefinition.itemID)).getDefaultStack();
 
         if (slotDefinition.itemNBT != null)
             try {
@@ -217,7 +217,7 @@ public class CustomUI extends Module {
 
     private static void playSound(ServerPlayerEntity player, String soundID) {
         if (soundID != null) {
-            RegistryEntry<SoundEvent> sound = RegistryEntry.of(SoundEvent.of(new Identifier(soundID)));
+            RegistryEntry<SoundEvent> sound = RegistryEntry.of(SoundEvent.of(Identifier.of(soundID)));
             Vec3d pos = player.getPos();
             player.networkHandler.sendPacket(new PlaySoundS2CPacket(sound, SoundCategory.MASTER, pos.x, pos.y, pos.z, 1, 1, player.getRandom().nextLong()));
         }

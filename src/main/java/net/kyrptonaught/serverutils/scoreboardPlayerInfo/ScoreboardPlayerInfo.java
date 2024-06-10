@@ -34,7 +34,6 @@ public class ScoreboardPlayerInfo extends Module {
     private static final CustomObjective hasControllerModObjective = createObj("hascontroller", "Client has Controller Mod");
     private static final CustomObjective fabricClientObjective = createObj("fabricclient", "Client is using Fabric");
     private static final CustomObjective forgeClientObjective = createObj("forgeclient", "Client is using Forge");
-    private static final CustomObjective bedrockClientObjective = createObj("bedrockclient", "Client is using Bedrock");
     private static final CustomObjective clientGUIScaleObjective = createObj("clientguiscale", "Client's GUI Scale");
     private static final CustomObjective clientPanScaleObjective = createObj("clientpanscale", "Client's Panorama Scale");
 
@@ -97,13 +96,12 @@ public class ScoreboardPlayerInfo extends Module {
             setHasLEMClient(handler.player, playerData.hasLCH);
             setHasOptifine(handler.player, playerData.hasOptishit);
             setHasControllerMod(handler.player, playerData.hasController);
-            setBedrockClient(handler.player, playerData.isBedrock);
             setGUIScale(handler.player, playerData.guiScale);
             setPanScale(handler.player, playerData.panScale);
             checkBrand(handler.player, playerData.brand);
         }
 
-        if (ServerPlayNetworking.canSend(handler, new Identifier("fabric:registry/sync")))
+        if (ServerPlayNetworking.canSend(handler, Identifier.of("fabric:registry/sync")))
             setFabricClient(handler.player, true);
     }
 
@@ -126,11 +124,6 @@ public class ScoreboardPlayerInfo extends Module {
 
     public static void setForgeClient(PlayerEntity player, boolean forgeClient) {
         forgeClientObjective.setScore(player, forgeClient ? 2 : 1);
-    }
-
-    public static void setBedrockClient(PlayerEntity player, Boolean bedrockClient) {
-        if (bedrockClient != null)
-            bedrockClientObjective.setScore(player, bedrockClient ? 2 : 1);
     }
 
     public static void addClientConnectionProtocol(ClientConnection connection, int protocol) {

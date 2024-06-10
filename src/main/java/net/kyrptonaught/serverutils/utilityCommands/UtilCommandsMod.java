@@ -72,7 +72,7 @@ public class UtilCommandsMod extends Module {
                                     BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
 
                                     context.getSource().getServer().execute(() -> {
-                                        players.forEach(player -> player.teleport(pos.getX(), pos.getY(), pos.getZ()));
+                                        players.forEach(player -> player.requestTeleport(pos.getX(), pos.getY(), pos.getZ()));
                                     });
 
                                     return 1;

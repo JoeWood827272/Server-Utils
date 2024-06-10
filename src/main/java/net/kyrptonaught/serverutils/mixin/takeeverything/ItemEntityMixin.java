@@ -22,7 +22,7 @@ public abstract class ItemEntityMixin extends Entity {
 
     @Redirect(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;insertStack(Lnet/minecraft/item/ItemStack;)Z"))
     public boolean autoEquip(PlayerInventory instance, ItemStack stack) {
-        if (TakeEverythingHelper.isSwappableItem(stack)) {
+        if (TakeEverythingHelper.isSwappableItem(instance.player, stack)) {
             if (TakeEverythingHelper.canEquip(instance.player, stack)) {
                 TakeEverythingHelper.equipOrSwapArmor(instance.player, stack, false);
                 return true;
