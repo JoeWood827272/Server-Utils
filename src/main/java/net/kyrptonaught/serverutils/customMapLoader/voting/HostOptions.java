@@ -1,5 +1,6 @@
 package net.kyrptonaught.serverutils.customMapLoader.voting;
 
+import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.customMapLoader.CustomMapLoaderMod;
 import net.kyrptonaught.serverutils.customMapLoader.MapSize;
 import net.kyrptonaught.serverutils.userConfig.UserConfigStorage;
@@ -24,7 +25,7 @@ public class HostOptions {
     }
 
     public static Identifier getGlobalAcceptKey() {
-        return Identifier.of("acceptedpacks", "global_accept");
+        return Identifier.of(ServerUtilsMod.MOD_ID, "maploader_global_accept");
     }
 
     public static boolean getGlobalAcceptValue(ServerPlayerEntity player) {
@@ -32,7 +33,7 @@ public class HostOptions {
     }
 
     public static Identifier getOverwriteKey(Identifier mapID) {
-        return Identifier.of("acceptedpacks", "acceptance_policy." + mapID.toUnderscoreSeparatedString() + ".dontaskagain");
+        return Identifier.of(ServerUtilsMod.MOD_ID, "maploader_acceptance_policy." + mapID.toUnderscoreSeparatedString() + ".dontaskagain");
     }
 
     public static boolean getOverwriteValue(ServerPlayerEntity player, Identifier mapID) {

@@ -30,8 +30,8 @@ public class SwitchableResourcepacksMod extends ModuleWConfig<ResourcePackConfig
     private static final HashMap<UUID, PlayerStatus> playerLoaded = new HashMap<>();
 
     private static Collection<CommandFunction<ServerCommandSource>> RP_FAILED_FUNCTIONS, RP_LOADED_FUNCTIONS, RP_STARTED_FUNCTIONS;
-    private static final Identifier CUSTOMPACKID = Identifier.of("custompack", "enabled");
-    private static final Identifier SAFEMUSICID = Identifier.of("safemusic", "enabled");
+    private static final Identifier CUSTOMPACKID = Identifier.of(ServerUtilsMod.MOD_ID, "srp_custompack");
+    private static final Identifier SAFEMUSICID = Identifier.of(ServerUtilsMod.MOD_ID, "srp_safemusic");
     private static final UUID CUSTOMPACKUUID = UUID.nameUUIDFromBytes(CUSTOMPACKID.toString().getBytes(StandardCharsets.UTF_8));
 
     public void onConfigLoad(ResourcePackConfig config) {
