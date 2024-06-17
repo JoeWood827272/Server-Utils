@@ -1,4 +1,4 @@
-package net.kyrptonaught.serverutils.switchableresourcepacks;
+package net.kyrptonaught.serverutils.switchableresourcepacks.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,20 +11,24 @@ public class PackStatus {
         packs.put(packname, new Status(tempPack, LoadingStatus.PENDING));
     }
 
-    public void setPackLoadStatus(UUID packname, LoadingStatus status) {
-        packs.get(packname).setLoadingStatus(status);
+    public Status getPack(UUID pack) {
+        return packs.get(pack);
     }
 
     public Map<UUID, Status> getPacks() {
         return packs;
     }
 
+    public void setPackLoadStatus(UUID packname, PackStatus.LoadingStatus status) {
+        getPack(packname).setLoadingStatus(status);
+    }
+
     public boolean isComplete(UUID pack) {
-        return packs.get(pack).getLoadingStatus() == LoadingStatus.FINISHED || packs.get(pack).getLoadingStatus() == LoadingStatus.FAILED;
+        return getPack(pack).getLoadingStatus() == PackStatus.LoadingStatus.FINISHED || getPack(pack).getLoadingStatus() == PackStatus.LoadingStatus.FAILED;
     }
 
     public boolean didFail(UUID pack) {
-        return packs.get(pack).getLoadingStatus() == LoadingStatus.FAILED;
+        return getPack(pack).getLoadingStatus() == PackStatus.LoadingStatus.FAILED;
     }
 
     public static class Status {

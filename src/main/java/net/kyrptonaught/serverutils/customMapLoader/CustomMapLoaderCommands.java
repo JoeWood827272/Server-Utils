@@ -228,24 +228,7 @@ public class CustomMapLoaderCommands {
                                     Identifier id = IdentifierArgumentType.getIdentifier(context, "dimID");
                                     CustomMapLoaderMod.unloadBattleMap(context.getSource().getServer(), id, null);
                                     return 1;
-                                })))
-                .then(CommandManager.literal("triggerMusic")
-                        .then(CommandManager.argument("dimID", IdentifierArgumentType.identifier())
-                                .executes(context -> {
-                                    Identifier id = IdentifierArgumentType.getIdentifier(context, "dimID");
-                                    CustomMapLoaderMod.triggerMusic(id);
-                                    return 1;
-                                })))
-                .then(CommandManager.literal("skipSong")
-                        .then(CommandManager.argument("dimID", IdentifierArgumentType.identifier())
-                                .then(CommandManager.argument("players", EntityArgumentType.players())
-                                        .executes(context -> {
-                                            Identifier id = IdentifierArgumentType.getIdentifier(context, "dimID");
-                                            Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
-
-                                            CustomMapLoaderMod.skipSong(id, players);
-                                            return 1;
-                                        })))));
+                                }))));
 
         cmd.then(CommandManager.literal("lobby")
                 .then(CommandManager.literal("load")

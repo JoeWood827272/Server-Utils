@@ -1,7 +1,7 @@
 package net.kyrptonaught.serverutils.mixin.switchableresourcepacks;
 
-import net.kyrptonaught.serverutils.switchableresourcepacks.PackStatus;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
+import net.kyrptonaught.serverutils.switchableresourcepacks.status.PackStatus;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.packet.c2s.common.ResourcePackStatusC2SPacket;
 import net.minecraft.server.MinecraftServer;

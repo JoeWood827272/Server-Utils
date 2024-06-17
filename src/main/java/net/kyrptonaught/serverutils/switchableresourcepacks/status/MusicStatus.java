@@ -1,5 +1,6 @@
-package net.kyrptonaught.serverutils.customMapLoader;
+package net.kyrptonaught.serverutils.switchableresourcepacks.status;
 
+import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.switchableresourcepacks.MusicPack;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.network.packet.s2c.play.StopSoundS2CPacket;
@@ -13,19 +14,29 @@ import net.minecraft.util.math.Vec3d;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-public class PlayerInstanceData {
+public class MusicStatus {
     private MusicPack masterPack;
     private MusicPack playingPack;
 
     private long endTime = 0;
     private Identifier currentSong;
 
-    public PlayerInstanceData setMusic(MusicPack pack) {
+    public boolean tickMusic = false;
+
+    private static final Identifier DELAY_SONG = Identifier.of(ServerUtilsMod.MOD_ID, "delay");
+
+    public void setMusic(MusicPack pack) {
+        if (pack == null) {
+            this.masterPack = null;
+            this.playingPack = null;
+            return;
+        }
+
         this.masterPack = pack;
         this.playingPack = new MusicPack();
         this.playingPack.songs = new LinkedHashMap<>();
         this.playingPack.play_order = pack.play_order;
-        return this;
+        this.playingPack.delay = pack.delay;
     }
 
     public boolean isSongFinished(long currentTime) {
@@ -36,34 +47,37 @@ public class PlayerInstanceData {
     }
 
     public void skipSong(ServerPlayerEntity player) {
+        if (masterPack == null) return;
+
         if (currentSong != null) stopSong(player);
-        playNextSong(player, System.currentTimeMillis());
+        playNextSong(player, System.currentTimeMillis(), false);
     }
 
-    public void playNextSong(ServerPlayerEntity player, long currentTime) {
+    public void playNextSong(ServerPlayerEntity player, long currentTime, boolean respectDelay) {
         if (playingPack.songs.isEmpty()) {
             playingPack.songs.putAll(masterPack.songs);
         }
 
-        Identifier songID;
-        long songLength;
+        if (respectDelay && currentSong != DELAY_SONG) {
+            int delay = getDelay(player, playingPack.delay) * 1000;
+            if (delay > 0) {
+                setCurrentSong(DELAY_SONG, delay, currentTime);
+                return;
+            }
+        }
 
+        Identifier songID;
         if (playingPack.play_order == MusicPack.PLAY_ORDER.CHRONOLOGICAL) {
             songID = playingPack.songs.sequencedKeySet().getFirst();
 
         } else {
             int index = player.getRandom().nextInt(playingPack.songs.size());
             Iterator<Identifier> iter = playingPack.songs.keySet().iterator();
-            for (int i = 0; i < index; i++) {
-                iter.next();
-            }
+            for (int i = 0; i < index; i++) iter.next();
             songID = iter.next();
         }
 
-        songLength = playingPack.songs.remove(songID) * 1000;
-        endTime = currentTime + songLength;
-
-        currentSong = songID;
+        setCurrentSong(songID, playingPack.songs.remove(songID) * 1000, currentTime);
         playSong(player, songID);
     }
 
@@ -76,5 +90,29 @@ public class PlayerInstanceData {
 
     private void stopSong(ServerPlayerEntity player) {
         player.networkHandler.sendPacket(new StopSoundS2CPacket(currentSong, SoundCategory.MUSIC));
+    }
+
+    private void setCurrentSong(Identifier songID, long length, long current) {
+        endTime = current + length;
+        currentSong = songID;
+    }
+
+    private static int getDelay(ServerPlayerEntity player, String value) {
+        if (value == null || value.isEmpty())
+            return 0;
+
+        if (value.contains("-")) {
+            int start = Integer.parseInt(value.substring(0, value.indexOf("-")));
+            int end = Integer.parseInt(value.substring(value.indexOf("-") + 1));
+
+            return player.getRandom().nextBetween(start, end);
+        }
+
+        if (value.contains(",")) {
+            String[] values = value.split(",");
+            return Integer.parseInt(values[player.getRandom().nextInt(values.length)]);
+        }
+
+        return Integer.parseInt(value);
     }
 }

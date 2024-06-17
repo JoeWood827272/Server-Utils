@@ -1,10 +1,8 @@
 package net.kyrptonaught.serverutils.takeEverything;
 
-import net.fabricmc.fabric.api.item.v1.EquipmentSlotProvider;
 import net.minecraft.block.SkullBlock;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,7 +10,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.*;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -45,7 +42,7 @@ public class TakeEverythingHelper {
     }
 
     public static boolean canEquip(PlayerEntity player, ItemStack armor) {
-        EquipmentSlot equipmentSlot = getEquipSlot(player,armor);
+        EquipmentSlot equipmentSlot = getEquipSlot(player, armor);
         if (equipmentSlot == null)
             return false;
         ItemStack equipped = player.getEquippedStack(equipmentSlot);
@@ -53,7 +50,7 @@ public class TakeEverythingHelper {
     }
 
     public static boolean canSwap(PlayerEntity player, ItemStack armor, boolean alwaysSwap) {
-        EquipmentSlot equipmentSlot = getEquipSlot(player,armor);
+        EquipmentSlot equipmentSlot = getEquipSlot(player, armor);
         if (equipmentSlot == null)
             return false;
         ItemStack equipped = player.getEquippedStack(equipmentSlot);
@@ -86,7 +83,7 @@ public class TakeEverythingHelper {
     }
 
     public static ItemStack equipOrSwapArmor(PlayerEntity player, ItemStack armor, boolean alwaysSwap) {
-        EquipmentSlot equipmentSlot = getEquipSlot(player,armor);
+        EquipmentSlot equipmentSlot = getEquipSlot(player, armor);
         if (equipmentSlot == null)
             return ItemStack.EMPTY;
 
@@ -113,8 +110,8 @@ public class TakeEverythingHelper {
         return slot;
     }
 
-    public static boolean isSwappableItem(LivingEntity entity,ItemStack stack) {
-        return getEquipSlot(entity,stack) != null;
+    public static boolean isSwappableItem(LivingEntity entity, ItemStack stack) {
+        return getEquipSlot(entity, stack) != null;
     }
 
     public static Boolean hasBinding(ItemStack stack) {

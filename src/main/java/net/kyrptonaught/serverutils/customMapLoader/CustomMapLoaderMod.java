@@ -112,18 +112,6 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                 continue;
             }
 
-            if (instance.tickMusic) {
-                long currentTime = System.currentTimeMillis();
-                server.getPlayerManager().getPlayerList().forEach(player -> {
-                    PlayerInstanceData data = instance.playerData.get(player.getUuidAsString());
-                    if (data != null) {
-                        if (data.isSongFinished(currentTime)) {
-                            data.playNextSong(player, currentTime);
-                        }
-                    }
-                });
-            }
-
             if (instance.finishedLoading) {
                 continue;
             }
@@ -225,7 +213,11 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         if (loadResources)
             loadResourcePacks(instance.getAddon(), player);
 
-        instance.addPlayerData(player);
+        if (SwitchableResourcepacksMod.isSafeMusicEnabled(player) && instance.getAddon().safe_music_pack != null) {
+            SwitchableResourcepacksMod.setMusicPack(player, instance.getAddon().safe_music_pack);
+        } else {
+            SwitchableResourcepacksMod.setMusicPack(player, instance.getAddon().music_pack);
+        }
 
         ParsedPlayerCoords playerPos = parseVec3D(rawCoords);
 
@@ -326,16 +318,6 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
             LOADED_BATTLE_MAPS.get(dimID).scheduleToRemove = true;
 
         DimensionLoaderMod.unLoadDimension(server, dimID, functions);
-    }
-
-    public static void triggerMusic(Identifier dimID) {
-        if (LOADED_BATTLE_MAPS.containsKey(dimID))
-            LOADED_BATTLE_MAPS.get(dimID).tickMusic = true;
-    }
-
-    public static void skipSong(Identifier dimID, Collection<ServerPlayerEntity> players) {
-        if (LOADED_BATTLE_MAPS.containsKey(dimID))
-            players.forEach(player -> LOADED_BATTLE_MAPS.get(dimID).skipSong(player));
     }
 
     private static BlockPos parseBlockPos(String coords) {

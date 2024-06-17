@@ -2,15 +2,16 @@ package net.kyrptonaught.serverutils.customMapLoader;
 
 import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
 import net.kyrptonaught.serverutils.dimensionLoader.DimensionLoaderMod;
-import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 public class LoadedBattleMapInstance {
@@ -34,10 +35,6 @@ public class LoadedBattleMapInstance {
 
     public boolean scheduleToRemove = false;
 
-    public boolean tickMusic = false;
-
-    public final HashMap<String, PlayerInstanceData> playerData = new HashMap<>();
-
     public LoadedBattleMapInstance(boolean centralSpawnEnabled, MapSize selectedMapSize, BattleMapAddon battleMapAddon, Identifier dimID) {
         this.centralSpawnEnabled = centralSpawnEnabled;
         this.selectedMapSize = selectedMapSize;
@@ -60,22 +57,6 @@ public class LoadedBattleMapInstance {
     public Identifier getDimID() {
         return dimID;
     }
-
-    public void addPlayerData(ServerPlayerEntity player) {
-        if (!playerData.containsKey(player.getUuidAsString())) {
-            if (SwitchableResourcepacksMod.isSafeMusicEnabled(player) && battleMapAddon.safe_music_pack != null) {
-                playerData.put(player.getUuidAsString(), new PlayerInstanceData().setMusic(battleMapAddon.safe_music_pack));
-            } else {
-                playerData.put(player.getUuidAsString(), new PlayerInstanceData().setMusic(battleMapAddon.music_pack));
-            }
-        }
-    }
-
-    public void skipSong(ServerPlayerEntity player) {
-        if (playerData.containsKey(player.getUuidAsString()))
-            playerData.get(player.getUuidAsString()).skipSong(player);
-    }
-
 
     public ServerWorld getWorld() {
         return DimensionLoaderMod.loadedWorlds.get(dimID).world.asWorld();
