@@ -275,6 +275,12 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
     private static void lobbyTP(ServerWorld world, ServerPlayerEntity player, String[] coords, BaseMapAddon addon) {
         loadResourcePacks(addon, player);
 
+        if (SwitchableResourcepacksMod.isSafeMusicEnabled(player) && addon.safe_music_pack != null) {
+            SwitchableResourcepacksMod.setMusicPack(player, addon.safe_music_pack);
+        } else {
+            SwitchableResourcepacksMod.setMusicPack(player, addon.music_pack);
+        }
+
         float yaw = player.getYaw();
         float pitch = player.getPitch();
 
