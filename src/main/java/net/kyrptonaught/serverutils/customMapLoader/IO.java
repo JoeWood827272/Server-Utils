@@ -17,6 +17,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
 
+import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -95,13 +96,9 @@ public class IO {
                     ZipEntry entry = entries.nextElement();
                     String entryName = FileHelper.fixPathSeparator(entry.getName());
                     if (entryName.startsWith(baseDirectory)) {
-                        Path newOut = outputPath.resolve(entryName.replace(baseDirectory, ""));
-                        if (entry.isDirectory()) {
-                            Files.createDirectories(newOut);
-                        } else {
-                            Files.createDirectories(newOut.getParent());
-                            Files.copy(zip.getInputStream(entry), newOut, StandardCopyOption.REPLACE_EXISTING);
-                        }
+                        extractFile(zip, entry, outputPath.resolve(entryName.replace(baseDirectory, "")));
+                    } else if (entryName.startsWith("datapack/")) {
+                        extractFile(zip, entry, outputPath.resolve(entryName));
                     }
                 } catch (FileAlreadyExistsException ignored) {
                 } catch (Exception e) {
@@ -110,6 +107,15 @@ public class IO {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void extractFile(ZipFile zip, ZipEntry entry, Path newOut) throws IOException {
+        if (entry.isDirectory()) {
+            Files.createDirectories(newOut);
+        } else {
+            Files.createDirectories(newOut.getParent());
+            Files.copy(zip.getInputStream(entry), newOut, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 

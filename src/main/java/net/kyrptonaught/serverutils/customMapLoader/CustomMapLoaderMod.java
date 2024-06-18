@@ -1,5 +1,6 @@
 package net.kyrptonaught.serverutils.customMapLoader;
 
+
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -7,10 +8,7 @@ import net.kyrptonaught.serverutils.CMDHelper;
 import net.kyrptonaught.serverutils.ModuleWConfig;
 import net.kyrptonaught.serverutils.ServerUtilsMod;
 import net.kyrptonaught.serverutils.chestTracker.ChestTrackerMod;
-import net.kyrptonaught.serverutils.customMapLoader.addons.BaseMapAddon;
-import net.kyrptonaught.serverutils.customMapLoader.addons.BattleMapAddon;
-import net.kyrptonaught.serverutils.customMapLoader.addons.LobbyMapAddon;
-import net.kyrptonaught.serverutils.customMapLoader.addons.ResourcePackList;
+import net.kyrptonaught.serverutils.customMapLoader.addons.*;
 import net.kyrptonaught.serverutils.customMapLoader.voting.HostOptions;
 import net.kyrptonaught.serverutils.customMapLoader.voting.Votebook;
 import net.kyrptonaught.serverutils.customWorldBorder.CustomWorldBorderMod;
@@ -51,6 +49,8 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
     private static final HashMap<Identifier, LoadedBattleMapInstance> LOADED_BATTLE_MAPS = new HashMap<>();
     private static final HashMap<Identifier, LobbyMapAddon> LOADED_LOBBIES = new HashMap<>();
 
+    public static final AddonResourcePackProvider ADDON_PROVIDER = new AddonResourcePackProvider();
+
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(CustomMapLoaderMod::reloadAddonFiles);
@@ -88,6 +88,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                 players.get(i).networkHandler.reconfigure();
             }
         }
+
     }
 
     //todo fix
@@ -116,8 +117,9 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                 continue;
             }
 
-            if (instance.runPreTriggerCondition(server))
+            if (instance.runPreTriggerCondition(server)) {
                 instance.executeDatapack(server);
+            }
         }
     }
 
@@ -143,6 +145,8 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                         return true;
                     });
 
+                    ADDON_PROVIDER.loadAddon(addon, path);
+                    tryEnableDatapack(server, config);
                     instance.setDatapackFunctions(functions);
 
                     LOADED_BATTLE_MAPS.put(dimID, instance);
@@ -239,6 +243,9 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
 
             teleportToLobby(dimID, players, null);
 
+            ADDON_PROVIDER.loadAddon(addon, path);
+            tryEnableDatapack(server, config);
+
             if (functions != null) {
                 for (CommandFunction<ServerCommandSource> commandFunction : functions) {
                     server.getCommandFunctionManager().execute(commandFunction, server.getCommandSource().withLevel(2).withSilent());
@@ -313,15 +320,46 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         SwitchableResourcepacksMod.addPacks(list.packs, player);
     }
 
+    public static void tryEnableDatapack(MinecraftServer server, BaseMapAddon addon) {
+        server.getDataPackManager().scanPacks();
+        if (server.getDataPackManager().hasProfile(AddonResourcePackProvider.getID(addon.addon_id))) {
+            server.getDataPackManager().enable(AddonResourcePackProvider.getID(addon.addon_id));
+            server.reloadResources(server.getDataPackManager().getEnabledIds()).exceptionally(throwable -> {
+                throwable.printStackTrace();
+                return null;
+            });
+        }
+    }
+
+    public static void tryDisableDatapack(MinecraftServer server, BaseMapAddon addon) {
+        server.getDataPackManager().scanPacks();
+        if (server.getDataPackManager().hasProfile(AddonResourcePackProvider.getID(addon.addon_id))) {
+            server.getDataPackManager().disable(AddonResourcePackProvider.getID(addon.addon_id));
+            server.reloadResources(server.getDataPackManager().getEnabledIds()).exceptionally(throwable -> {
+                throwable.printStackTrace();
+                return null;
+            });
+        }
+    }
+
     public static void unloadLobbyMap(MinecraftServer server, Identifier dimID, Collection<CommandFunction<ServerCommandSource>> functions) {
+        if (LOADED_LOBBIES.containsKey(dimID)) {
+//            tryDisableDatapack(server, LOADED_LOBBIES.get(dimID));
+            ADDON_PROVIDER.unloadAddon(LOADED_LOBBIES.get(dimID).addon_id);
+        }
+
         LOADED_LOBBIES.remove(dimID);
 
         DimensionLoaderMod.unLoadDimension(server, dimID, functions);
     }
 
     public static void unloadBattleMap(MinecraftServer server, Identifier dimID, Collection<CommandFunction<ServerCommandSource>> functions) {
-        if (LOADED_BATTLE_MAPS.containsKey(dimID))
+        if (LOADED_BATTLE_MAPS.containsKey(dimID)) {
             LOADED_BATTLE_MAPS.get(dimID).scheduleToRemove = true;
+            tryDisableDatapack(server, LOADED_BATTLE_MAPS.get(dimID).getAddon());
+            ADDON_PROVIDER.unloadAddon(LOADED_BATTLE_MAPS.get(dimID).getAddon().addon_id);
+        }
+
 
         DimensionLoaderMod.unLoadDimension(server, dimID, functions);
     }
