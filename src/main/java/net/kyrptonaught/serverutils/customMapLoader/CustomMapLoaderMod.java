@@ -117,9 +117,8 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                 continue;
             }
 
-            if (instance.runPreTriggerCondition(server)) {
+            if (instance.runPreTriggerCondition(server))
                 instance.executeDatapack(server);
-            }
         }
     }
 
