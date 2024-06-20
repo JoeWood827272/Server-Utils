@@ -16,9 +16,9 @@ import net.kyrptonaught.serverutils.datapackInteractables.DatapackInteractables;
 import net.kyrptonaught.serverutils.dimensionLoader.CustomDimHolder;
 import net.kyrptonaught.serverutils.dimensionLoader.DimensionLoaderMod;
 import net.kyrptonaught.serverutils.discordBridge.MessageSender;
-import net.kyrptonaught.serverutils.noteblockMusic.NoteblockMusicMod;
 import net.kyrptonaught.serverutils.playerJoinLocation.PlayerJoinLocationMod;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
+import net.kyrptonaught.serverutils.switchableresourcepacks.NoteBlockMusic;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePack;
 import net.kyrptonaught.serverutils.switchableresourcepacks.SwitchableResourcepacksMod;
 import net.minecraft.registry.CombinedDynamicRegistries;
@@ -145,7 +145,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                         return true;
                     });
 
-                    NoteblockMusicMod.cacheAll(path.resolve("nbs"));
+                    NoteBlockMusic.cacheAll(path.resolve("nbs"));
 
                     ADDON_DATAPACK_PROVIDER.loadAddon(addon, path);
                     tryEnableDatapack(server, config);
@@ -245,7 +245,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
 
             teleportToLobby(dimID, players, null);
 
-            NoteblockMusicMod.cacheAll(path.resolve("nbs"));
+            NoteBlockMusic.cacheAll(path.resolve("nbs"));
 
             ADDON_DATAPACK_PROVIDER.loadAddon(addon, path);
             tryEnableDatapack(server, config);
@@ -350,7 +350,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         if (LOADED_LOBBIES.containsKey(dimID)) {
             tryDisableDatapack(server, LOADED_LOBBIES.get(dimID));
             ADDON_DATAPACK_PROVIDER.unloadAddon(LOADED_LOBBIES.get(dimID).addon_id);
-            NoteblockMusicMod.clearCache();
+            NoteBlockMusic.clearCache();
         }
 
         LOADED_LOBBIES.remove(dimID);
@@ -363,7 +363,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
             LOADED_BATTLE_MAPS.get(dimID).scheduleToRemove = true;
             tryDisableDatapack(server, LOADED_BATTLE_MAPS.get(dimID).getAddon());
             ADDON_DATAPACK_PROVIDER.unloadAddon(LOADED_BATTLE_MAPS.get(dimID).getAddon().addon_id);
-            NoteblockMusicMod.clearCache();
+            NoteBlockMusic.clearCache();
         }
 
         DimensionLoaderMod.unLoadDimension(server, dimID, functions);

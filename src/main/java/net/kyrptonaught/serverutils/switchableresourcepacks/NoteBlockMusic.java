@@ -1,14 +1,13 @@
-package net.kyrptonaught.serverutils.noteblockMusic;
+package net.kyrptonaught.serverutils.switchableresourcepacks;
 
 import net.kyrptonaught.noteblockplayer.Commands;
-import net.kyrptonaught.serverutils.Module;
 import net.raphimc.noteblocklib.format.nbs.NbsSong;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-public class NoteblockMusicMod extends Module {
+public class NoteBlockMusic {
 
     public static void cacheSong(String id, Path songPath) {
         NbsSong song = Commands.loadSong(songPath);

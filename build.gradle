@@ -78,7 +78,7 @@ shadowJar {
 	relocate 'okio' , 'net.dv8tion.shaded.okio'
 
 	//Exclude META-INF entries of shaded deps
-	exclude('META-INF/**', '**/*.pdn','**/*.bbmodel')
+	exclude('META-INF/**')
 	// include() upsets shadow, so use from() instead
 	from('LICENSE.md', 'NOTICE.txt')
 	from('licenses') {
