@@ -16,6 +16,7 @@ import net.kyrptonaught.serverutils.datapackInteractables.DatapackInteractables;
 import net.kyrptonaught.serverutils.dimensionLoader.CustomDimHolder;
 import net.kyrptonaught.serverutils.dimensionLoader.DimensionLoaderMod;
 import net.kyrptonaught.serverutils.discordBridge.MessageSender;
+import net.kyrptonaught.serverutils.noteblockMusic.NoteblockMusicMod;
 import net.kyrptonaught.serverutils.playerJoinLocation.PlayerJoinLocationMod;
 import net.kyrptonaught.serverutils.playerlockdown.PlayerLockdownMod;
 import net.kyrptonaught.serverutils.switchableresourcepacks.ResourcePack;
@@ -49,7 +50,7 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
     private static final HashMap<Identifier, LoadedBattleMapInstance> LOADED_BATTLE_MAPS = new HashMap<>();
     private static final HashMap<Identifier, LobbyMapAddon> LOADED_LOBBIES = new HashMap<>();
 
-    public static final AddonResourcePackProvider ADDON_PROVIDER = new AddonResourcePackProvider();
+    public static final AddonResourcePackProvider ADDON_DATAPACK_PROVIDER = new AddonResourcePackProvider();
 
     @Override
     public void onInitialize() {
@@ -144,7 +145,9 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
                         return true;
                     });
 
-                    ADDON_PROVIDER.loadAddon(addon, path);
+                    NoteblockMusicMod.cacheAll(path.resolve("nbs"));
+
+                    ADDON_DATAPACK_PROVIDER.loadAddon(addon, path);
                     tryEnableDatapack(server, config);
                     instance.setDatapackFunctions(functions);
 
@@ -242,7 +245,9 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
 
             teleportToLobby(dimID, players, null);
 
-            ADDON_PROVIDER.loadAddon(addon, path);
+            NoteblockMusicMod.cacheAll(path.resolve("nbs"));
+
+            ADDON_DATAPACK_PROVIDER.loadAddon(addon, path);
             tryEnableDatapack(server, config);
 
             if (functions != null) {
@@ -343,8 +348,9 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
 
     public static void unloadLobbyMap(MinecraftServer server, Identifier dimID, Collection<CommandFunction<ServerCommandSource>> functions) {
         if (LOADED_LOBBIES.containsKey(dimID)) {
-//            tryDisableDatapack(server, LOADED_LOBBIES.get(dimID));
-            ADDON_PROVIDER.unloadAddon(LOADED_LOBBIES.get(dimID).addon_id);
+            tryDisableDatapack(server, LOADED_LOBBIES.get(dimID));
+            ADDON_DATAPACK_PROVIDER.unloadAddon(LOADED_LOBBIES.get(dimID).addon_id);
+            NoteblockMusicMod.clearCache();
         }
 
         LOADED_LOBBIES.remove(dimID);
@@ -356,9 +362,9 @@ public class CustomMapLoaderMod extends ModuleWConfig<CustomMapLoaderConfig> {
         if (LOADED_BATTLE_MAPS.containsKey(dimID)) {
             LOADED_BATTLE_MAPS.get(dimID).scheduleToRemove = true;
             tryDisableDatapack(server, LOADED_BATTLE_MAPS.get(dimID).getAddon());
-            ADDON_PROVIDER.unloadAddon(LOADED_BATTLE_MAPS.get(dimID).getAddon().addon_id);
+            ADDON_DATAPACK_PROVIDER.unloadAddon(LOADED_BATTLE_MAPS.get(dimID).getAddon().addon_id);
+            NoteblockMusicMod.clearCache();
         }
-
 
         DimensionLoaderMod.unLoadDimension(server, dimID, functions);
     }

@@ -17,6 +17,7 @@ repositories {
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 	maven { url "https://masa.dy.fi/maven" }
 	maven { url "https://repo.opencollab.dev/main/" }
+	maven { url 'https://maven.lenni0451.net/snapshots'}
 	mavenCentral()
 }
 
@@ -44,8 +45,9 @@ dependencies {
 	//NoChatReports
 	modImplementation('maven.modrinth:no-chat-reports:Fabric-1.21-v2.8.0') { exclude group: "net.fabricmc.fabric-api" }
 
-	//NOTA
-	modImplementation include("ru.pinkgoosik:nota:0.2.0-lem-v2-1.20.5") { exclude group: "net.fabricmc.fabric-api" }
+	//NBS
+	modImplementation include("net.kyrptonaught:NoteBlockPlayer:0.0.2") { exclude group: "net.fabricmc.fabric-api" }
+	implementation include('net.raphimc:NoteBlockLib:2.1.2-SNAPSHOT');
 
 	//Discord Bridge
 	shadow implementation("net.dv8tion:JDA:5.0.0-beta.24") { exclude module: 'opus-java' }

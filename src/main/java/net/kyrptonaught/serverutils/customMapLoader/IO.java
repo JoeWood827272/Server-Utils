@@ -97,7 +97,7 @@ public class IO {
                     String entryName = FileHelper.fixPathSeparator(entry.getName());
                     if (entryName.startsWith(baseDirectory)) {
                         extractFile(zip, entry, outputPath.resolve(entryName.replace(baseDirectory, "")));
-                    } else if (entryName.startsWith("datapack/")) {
+                    } else if (entryName.startsWith("datapack/") || entryName.startsWith("nbs/")) {
                         extractFile(zip, entry, outputPath.resolve(entryName));
                     }
                 } catch (FileAlreadyExistsException ignored) {
