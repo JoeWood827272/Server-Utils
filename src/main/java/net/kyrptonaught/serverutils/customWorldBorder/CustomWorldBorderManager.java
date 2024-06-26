@@ -129,7 +129,7 @@ public class CustomWorldBorderManager {
     }
 
     private static boolean hasLCH(ServerPlayerEntity player) {
-        return ServerPlayNetworking.canSend(player, CustomWorldBorderNetworking.CUSTOM_BORDER_PACKET);
+        return ServerPlayNetworking.canSend(player, CustomWorldBorderPacket.PACKET_ID);
     }
 
     public static class SyncedBorder {

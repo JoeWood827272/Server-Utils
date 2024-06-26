@@ -1,6 +1,7 @@
 package net.kyrptonaught.serverutils.utilityCommands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.kyrptonaught.serverutils.Module;
 import net.minecraft.command.argument.BlockPosArgumentType;
@@ -10,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameStateChangeS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.FunctionCommand;
@@ -18,6 +20,7 @@ import net.minecraft.server.function.CommandFunction;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,6 +96,25 @@ public class UtilCommandsMod extends Module {
                                             }
 
                                             serverPlayerEntity.networkHandler.sendPacket(new EntityAttributesS2CPacket(entity.getId(), Collections.singleton(((LivingEntity) entity).getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH))));
+                                        }
+                                    }
+
+                                    return 1;
+                                }))));
+
+        dispatcher.register(CommandManager.literal("spoofspectator")
+                .requires((source) -> source.hasPermissionLevel(2))
+                .then(CommandManager.argument("player", EntityArgumentType.players())
+                        .then(CommandManager.argument("spoof", BoolArgumentType.bool())
+                                .executes(context -> {
+                                    Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "player");
+                                    boolean spoof = BoolArgumentType.getBool(context, "spoof");
+
+                                    for (ServerPlayerEntity player : players) {
+                                        if (spoof) {
+                                            player.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.GAME_MODE_CHANGED, (float) GameMode.SPECTATOR.getId()));
+                                        } else {
+                                            player.networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.GAME_MODE_CHANGED, (float) player.interactionManager.getGameMode().getId()));
                                         }
                                     }
 

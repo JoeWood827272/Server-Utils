@@ -21,6 +21,7 @@ public record SyncKeybindsPacket(
     }
 
     public void write(RegistryByteBuf buf) {
+        buf.writeInt(keybinds.size());
         keybinds.forEach((s, keybindConfigItem) -> keybindConfigItem.writeToPacket(s, buf));
     }
 
