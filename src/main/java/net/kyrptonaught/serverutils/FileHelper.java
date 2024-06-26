@@ -135,6 +135,10 @@ public class FileHelper {
         return null;
     }
 
+    public static boolean exists(Path filePath) {
+        return Files.exists(filePath);
+    }
+
     public static String fixPathSeparator(String name) {
         return name.replaceAll("\\\\", "/");
     }

@@ -1,5 +1,6 @@
 package net.kyrptonaught.serverutils.customMapLoader.addons;
 
+import net.kyrptonaught.serverutils.FileHelper;
 import net.minecraft.resource.*;
 import net.minecraft.resource.fs.ResourceFileSystem;
 import net.minecraft.text.Text;
@@ -24,7 +25,8 @@ public class AddonResourcePackProvider implements ResourcePackProvider {
     private final HashMap<Identifier, Path> loadedAddons = new HashMap<>();
 
     public void loadAddon(Identifier id, Path path) {
-        loadedAddons.put(id, path.resolve("datapack"));
+        if (FileHelper.exists(path.resolve("datapack")))
+            loadedAddons.put(id, path.resolve("datapack"));
     }
 
     public void unloadAddon(Identifier id) {

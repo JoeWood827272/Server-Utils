@@ -2,6 +2,7 @@ package net.kyrptonaught.serverutils.customMapLoader;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import eu.pb4.sgui.virtual.book.BookScreenHandler;
@@ -30,17 +31,22 @@ public class CustomMapLoaderCommands {
         cmd.then(CommandManager.literal("voting")
                 .then(CommandManager.literal("openBook")
                         .executes(context -> {
-                            //Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
                             Votebook.getPage(context.getSource().getPlayer(), "title", null).open();
                             return 1;
                         }))
                 .then(CommandManager.literal("giveBook")
                         .executes(context -> {
-                            //Votebook.generateBookLibrary(CustomMapLoaderMod.getAllBattleMaps());
                             ServerPlayerEntity player = context.getSource().getPlayer();
                             player.giveItemStack(Votebook.getPage(player, "title", null).getBook());
                             return 1;
-                        }))
+                        })
+                        .then(CommandManager.argument("slot", IntegerArgumentType.integer(0, 100))
+                                .executes(context -> {
+                                    int slot = IntegerArgumentType.getInteger(context, "slot");
+                                    ServerPlayerEntity player = context.getSource().getPlayer();
+                                    player.getInventory().setStack(slot, Votebook.getPage(player, "title", null).getBook());
+                                    return 1;
+                                })))
                 .then(CommandManager.literal("showBookPage")
                         .then(CommandManager.argument("page", StringArgumentType.string())
                                 .executes(context -> {
@@ -264,8 +270,13 @@ public class CustomMapLoaderCommands {
                                         .then(CommandManager.argument("winner", EntityArgumentType.player())
                                                 .executes(context -> {
                                                     Identifier id = IdentifierArgumentType.getIdentifier(context, "dimID");
-                                                    Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
-                                                    ServerPlayerEntity winner = EntityArgumentType.getPlayer(context, "winner");
+                                                    Collection<ServerPlayerEntity> players = EntityArgumentType.getOptionalPlayers(context, "players");
+                                                    Collection<ServerPlayerEntity> winners = EntityArgumentType.getOptionalPlayers(context, "winner");
+
+                                                    ServerPlayerEntity winner = null;
+                                                    if (!winners.isEmpty()) {
+                                                        winner = winners.iterator().next();
+                                                    }
 
                                                     CustomMapLoaderMod.teleportToLobby(id, players, winner);
                                                     return 1;
